@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import copy
+
 class Atom:
     def __init__( self, value, element ):
         self._Value = value
@@ -30,6 +32,15 @@ class Game:
         return "Game( " + str( self._MaxAtoms ) + " )"
 
     def addAtom( self, atom, index ):
+        try:
+            if ( atom is None ):
+                raise Exception( "atom is None" )
+        except Exception as exc:
+            print( exc )
+            print( "atom should not be None" )
+            print( "DYING NOW!" )
+            exit( 1 )
+
         self._AtomCircle.insert( index, atom )
 
         if ( atom._Element == "+" ):
@@ -48,38 +59,65 @@ class Game:
 
     def minusAtom( self, index ):
         #TODO get the atom to be removed
-        #TODO change it into a plus or place it elsewhere
 
         print( "Minusing" )
 
+    def GenerateAtom( self ):
+        #TODO based on score and normal distribution, generate new atom
+        atom = None
+
+        return atom
+
     def GameOver( self ):
         print( "Game Over!" )
-        exit( 1 )
+        exit( 0 )
+
+    class Context:
+        def __init__( self, AtomCircle, CurrentScore, MaxAtoms ):
+            self._AtomCircle = copy.deepcopy( AtomCircle )
+            self._CurrentScore = CurrentScore
+            self._MaxAtoms = MaxAtoms
+
+        def __str__( self ):
+            ContextString = "Current Score: " + str( self._CurrentScore ) + "\n"
+            ContextString += "Current Atoms: " + str( len( self._AtomCircle ) ) + "\n"
+            
+            for i, atom in enumerate( self._AtomCircle ):
+                ContextString += "Atom #" + str( i ) + ": " + str( atom ) + "\n"
+
+            return ContextString
+
+        def __repr__( self ):
+            return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
+
+    def MachineContext( self ):
+        ctx = Game.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms )
+        return ctx
+
+def InitializeGame():
+    game = Game( 18 )
+    return game
+
+def AtomasGameLoop( game, args ):
+    iteration = 0
+
+    while( True ):
+        atom = game.GenerateAtom()
+        ctx = game.MachineContext()
+        #TODO tie in frame generation API
+        #generateFrame()
+        #TODO pygame loop to poll for input
+        #GameInput()
+        game.addAtom( atom, 0 )
+
+        print( "Iteration #" + str( iteration ) )
+        iteration += 1
 
 def main():
-    a = Atom( 1, "H" )
-    print( str( a ) )
-    print( repr( a ) )
-    print()
+    args = None
 
-    g = Game( 18 )
-    print( str( g ) )
-    print( repr( g ) )
-    print()
-
-    g.addAtom( a, 0 )
-    print( str( g ) )
-    print()
-
-    a = Atom( 0, "+" )
-    g.addAtom( a, 100 )
-    print( str( g ) )
-    print()
-
-    a = Atom( 0, "-" )
-    g.addAtom( a, 100 )
-    print( str( g ) )
-    print()
+    game = InitializeGame()
+    AtomasGameLoop( game, args )
 
 if __name__ == "__main__":
     main()
