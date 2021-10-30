@@ -20,7 +20,8 @@ class Renderer():
         self.entities = []
         self.ptable = ptable
         self.running = True
-        self.radius = min(x,y)/4
+        self.radius = min(x,y)/3
+        self.atomRadius = self.radius/6
         self.offset = 3*math.pi/2
         self.createWorld()
 
@@ -43,10 +44,11 @@ class Renderer():
             rad = (2*math.pi)*(i/tot) + self.offset
             x = self.radius*math.cos(rad) + self.center[0]
             y = self.radius*math.sin(rad) + self.center[1]
-            return [self.screen, a['color'], [x,y], 10]
+            return [self.screen, a['color'], [x,y], self.atomRadius]
         return list(map(lambda a: {'circle': atomToEntity(a[1], a[0], len(atoms))}, enumerate(atoms)))
 
     def drawFrame(self, Mctx):
+        self.screen.fill((255,255,255))
         dynamicEntities = self.createAtomEntities(Mctx._AtomCircle)
 
         for entity in self.entities + dynamicEntities:
@@ -56,7 +58,8 @@ class Renderer():
 
     def createWorld(self):
         x, y = self.screen.get_size()
-        self.entities.append({'circle': [self.screen, (255,255,255), [x/2, y/2], self.radius-10]})
+        self.entities.append({'circle': [self.screen, (200,200,200), [x/2, y/2], self.radius+1]})
+        self.entities.append({'circle': [self.screen, (255,255,255), [x/2, y/2], self.radius-1]})
 
     def handleClick(self, event, mctx):
         if event.button != 1:
