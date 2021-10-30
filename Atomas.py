@@ -64,7 +64,7 @@ class Game:
 
     def GenerateAtom( self ):
         #TODO based on score and normal distribution, generate new atom
-        atom = None
+        atom = Atom(0, 'H')
 
         return atom
 
@@ -93,31 +93,3 @@ class Game:
     def MachineContext( self ):
         ctx = Game.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms )
         return ctx
-
-def InitializeGame():
-    game = Game( 18 )
-    return game
-
-def AtomasGameLoop( game, args ):
-    iteration = 0
-
-    while( True ):
-        atom = game.GenerateAtom()
-        ctx = game.MachineContext()
-        #TODO tie in frame generation API
-        #generateFrame()
-        #TODO pygame loop to poll for input
-        #GameInput()
-        game.addAtom( atom, 0 )
-
-        print( "Iteration #" + str( iteration ) )
-        iteration += 1
-
-def main():
-    args = None
-
-    game = InitializeGame()
-    AtomasGameLoop( game, args )
-
-if __name__ == "__main__":
-    main()
