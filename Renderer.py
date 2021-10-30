@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 import pygame
 import math
 
+import game
 import utils
 
 ptableSymbols = ['H', 'He', 'Li', 'Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Uub','___','Uuq']
@@ -17,11 +19,10 @@ class Renderer():
         self.center = (x/2, y/2)
         self.entities = []
         self.ptable = ptable
-        self.createWorld()
         self.running = True
-        
-    def drawAtom(id, rad):
-        p = ptable[id]
+        self.radius = min(x,y)/4
+        self.offset = 3*math.pi/2
+        self.createWorld()
 
     def draw(self, entity):
         for shape in entity:
@@ -36,16 +37,26 @@ class Renderer():
                     del params['args']
                 fn(*args, **params)
 
+    def createAtomEntities(self, atoms):
+        def atomToEntity(atom, i, tot):
+            a = ptable[atom._Value]
+            rad = (2*math.pi)*(i/tot) + self.offset
+            x = self.radius*math.cos(rad) + self.center[0]
+            y = self.radius*math.sin(rad) + self.center[1]
+            return [self.screen, a['color'], [x,y], 10]
+        return list(map(lambda a: {'circle': atomToEntity(a[1], a[0], len(atoms))}, enumerate(atoms)))
+
     def drawFrame(self, Mctx):
-        for entity in self.entities:
+        dynamicEntities = self.createAtomEntities(Mctx._AtomCircle)
+
+        for entity in self.entities + dynamicEntities:
             self.draw(entity)
         pygame.display.flip()
         self.clock.tick(10)
 
     def createWorld(self):
         x, y = self.screen.get_size()
-        minSize = min(x,y)
-        self.entities.append({'circle': [self.screen, (255,255,255), [x/2, y/2], minSize/4]})
+        self.entities.append({'circle': [self.screen, (255,255,255), [x/2, y/2], self.radius-10]})
 
     def handleClick(self, event, mctx):
         if event.button != 1:
@@ -61,6 +72,8 @@ class Renderer():
     
         length = len(mctx._AtomCircle)
         idx = math.floor(rad/(2*math.pi)*length)
+
+        print(idx)
         return idx
 
     def getInput(self, M):
@@ -69,3 +82,7 @@ class Renderer():
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.handleClick(event, M)
+
+
+if __name__ == "__main__":
+    game.main()

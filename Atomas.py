@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-
 import copy
+
+import game
 
 class Atom:
     def __init__( self, value, element ):
@@ -93,3 +94,6 @@ class Game:
     def MachineContext( self ):
         ctx = Game.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms )
         return ctx
+
+if __name__ == "__main__":
+    game.main()

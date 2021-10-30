@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from Atomas import *
 from Renderer import *
 
@@ -13,7 +14,8 @@ def AtomasGameLoop( game, renderer ):
     iteration = 0
 
     atom = game.GenerateAtom()
-    game.addAtom( atom, 0 )
+    for i in range(5):
+        game.addAtom( atom, 0 )
 
     running = True
     while( running ):
@@ -28,7 +30,6 @@ def AtomasGameLoop( game, renderer ):
             #TODO automate input
             pass
 
-        print( "Iteration #" + str( iteration ) )
         iteration += 1
 
 def main():
