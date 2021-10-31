@@ -43,6 +43,7 @@ class Renderer():
         return list(map(lambda a: {'circle': atomToEntity(a[1], a[0], len(atoms))}, enumerate(atoms)))
 
     def drawFrame(self):
+        self.offset += 0.005
         self.screen.fill((255,255,255))
         dynamicEntities = self.createAtomEntities(self.mctx._AtomCircle)
         dynamicEntities += [{'circle': [self.screen, ptable[self.mctx._CenterAtom._Value]['color'], [self.center[0], self.center[1]], self.atomRadius]}]
@@ -50,7 +51,7 @@ class Renderer():
         for entity in self.entities + dynamicEntities:
             self.draw(entity)
         pygame.display.flip()
-        self.clock.tick(10)
+        self.clock.tick(60)
 
     def createWorld(self):
         x, y = self.screen.get_size()
@@ -65,9 +66,9 @@ class Renderer():
         x, y = self.center
         dx = pos[0] - x 
         dy = pos[1] - y 
-        rad = math.atan2(dy, dx) + self.offset
-        rad = (rad+math.pi) % (2*math.pi) - math.pi #periodic between -pi and pi, interpolating from 0 to pi
-        idx = math.ceil((rad+math.pi)/(2*math.pi)*len(self.mctx._AtomCircle))
+        rad = math.atan2(dy, dx)
+        rad = (rad - self.offset) % (2*math.pi)
+        idx = math.ceil(rad/(2*math.pi)*len(self.mctx._AtomCircle))
         self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom, idx]})
         return idx
 
