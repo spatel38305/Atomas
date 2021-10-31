@@ -1,42 +1,48 @@
 #!/usr/bin/env python3
-from Atomas import *
+from StateMachine import *
 from Renderer import *
 
 def InitializeGame( args ):
-    game = Game( 18 )
+    stateMachine = StateMachine( 18 )
     
     if args and 'render' in args and args['render'] == True:
-        return (game, Renderer())
+        return (stateMachine, Renderer())
     else:        
-        return (game, None)
+        return (stateMachine, None)
 
-def AtomasGameLoop( game, renderer ):
+def AtomasGameLoop( stateMachine, renderer ):
     iteration = 0
-
-    atom = game.GenerateAtom()
-    for i in range(5):
-        game.addAtom( atom, 0 )
 
     running = True
     while( running ):
         
-        ctx = game.MachineContext()
+        mctx = stateMachine.MachineContext()
+        smi = None
+
         if renderer:
-            renderer.drawFrame(ctx)
-            renderer.getInput(ctx)
+            renderer.updateStateMachine(mctx)
+            renderer.drawFrame()
+            renderer.getInput()
             if renderer.running == False:
                 running = False
+                break
+
+            smi = renderer.getStateMachineInput()
+            
         else:
             #TODO automate input
+            # smi = ai.getStateMachineInput()
             pass
+
+        stateMachine.input(smi)
 
         iteration += 1
 
 def main():
     args = {'render': True}
 
-    game, renderer = InitializeGame( args )
-    AtomasGameLoop( game, renderer )
+    stateMachine, renderer = InitializeGame( args )
+    AtomasGameLoop( stateMachine, renderer )
 
 if __name__ == "__main__":
     main()
