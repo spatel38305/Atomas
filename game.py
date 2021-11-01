@@ -14,8 +14,6 @@ def AtomasGameLoop( stateMachine, renderer ):
     iteration = 0
 
     running = True
-    for i in range(5):
-        stateMachine.addAtom(Atom(i), 0)
     while( running ):
         
         mctx = stateMachine.MachineContext()

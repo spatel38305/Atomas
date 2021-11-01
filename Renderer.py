@@ -75,10 +75,9 @@ class Renderer():
     def animateNewAtom(self, idx):
         frames = 10
         n = len(self.mctx._AtomCircle)
-        rad = ((2*math.pi*idx)/n - 7*math.pi/(4*n) + self.offset) % (2*math.pi)
-        
-        d = (idx/(n*(n+1)) - 1/(n+1))*2*math.pi
-        rad -= d
+
+        rad = ((2*math.pi*idx)/(n+1) + self.offset) % (2*math.pi) if n != 0 else -math.pi/2
+        d = (idx/(n*(n+1)) - 1/(n+1))*2*math.pi if n != 0 else 0
 
         for f in range(frames):
             self.offset -= d/frames
@@ -88,10 +87,8 @@ class Renderer():
             for cidx in range(n):
                 i = (idx + cidx) % n
                 r = cidx/(n + (f/frames)) + idx/n
-
                 crad = (r*2*math.pi + self.offset) % (2*math.pi)
                 dynamicEntities += self.createAtomCircleEntity(self.mctx._AtomCircle[i], crad)
-
 
             x = (f/frames)*self.radius*math.cos(rad) + self.center[0]
             y = (f/frames)*self.radius*math.sin(rad) + self.center[1]
