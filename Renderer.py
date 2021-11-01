@@ -73,18 +73,15 @@ class Renderer():
         self.entities.append({'fn': pygame.draw.circle, 'args': [self.screen, self.backgroundColor, [x/2, y/2], self.radius+self.atomRadius+5-1]})
 
     def animateNewAtom(self, idx):
-        frames = 30
-
+        frames = 10
         n = len(self.mctx._AtomCircle)
+        rad = ((2*math.pi*idx)/n - 7*math.pi/(4*n) + self.offset) % (2*math.pi)
         
-        rad = (idx/(n+1)*2*math.pi + self.offset) % (2*math.pi)
-        d = 0 if not n else math.pi/(n)
-        rad += d
-        
+        d = (idx/(n*(n+1)) - 1/(n+1))*2*math.pi
+        rad -= d
 
         for f in range(frames):
-            self.offset += d/frames
-            
+            self.offset -= d/frames
             self.screen.fill(self.backgroundColor)
             dynamicEntities = []
             
@@ -103,6 +100,8 @@ class Renderer():
             self.draw(self.entities + dynamicEntities)
             pygame.display.flip()
             self.clock.tick(self.fps)
+        
+        self.offset += d
 
         for e in pygame.event.get(): #ignore input during this time
             continue
@@ -121,9 +120,7 @@ class Renderer():
         idx = math.ceil(rad/(2*math.pi)*len(self.mctx._AtomCircle))
 
         self.animateNewAtom(idx)
-
         self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom, idx]})
-        #todo: animate
 
     def getInput(self):
         for event in pygame.event.get():
