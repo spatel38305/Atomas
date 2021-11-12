@@ -21,7 +21,7 @@ class Renderer():
         x, y = self.screen.get_size()
         self.x = x
         self.y = y
-        self.fps = 30
+        self.fps = 60
         self.center = (x/2, y/2)
         self.entities = []
         self.running = True
@@ -29,6 +29,7 @@ class Renderer():
         self.atomRadius = self.radius/6
         self.offset = -math.pi/2
         self.backgroundColor = (255, 255, 255)
+        self.last_mctx = None
         self.mctx = None
         self.stateMachineUpdates = []
         self.createWorld()
@@ -38,13 +39,20 @@ class Renderer():
             cmd['fn'](*cmd['args'])
 
     def createAtomEntity(self, atom, x, y):
-        txt = self.font.render(ptable[atom._Value]['symbol'], True, (255,255,255))
-        number = self.font.render(str(atom._Value), True, (255,255,255))
-        return [
+        if atom._Value == '+' or atom._Value == '-':
+            txt = self.font.render(atom._Value, True, (255,255,255))
+            return [
                 {'fn': pygame.draw.circle, 'args': [self.screen, ptable[atom._Value]['color'], [x,y], self.atomRadius] },
-                {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]},
-                {'fn': self.screen.blit, 'args': [number, (x-self.fontSize/2,y-self.fontSize/2 + 5)]}
+                {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]}
             ]
+        else:
+            txt = self.font.render(ptable[atom._Value]['symbol'], True, (255,255,255))
+            number = self.font.render(str(atom._Value), True, (255,255,255))
+            return [
+                    {'fn': pygame.draw.circle, 'args': [self.screen, ptable[atom._Value]['color'], [x,y], self.atomRadius] },
+                    {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]},
+                    {'fn': self.screen.blit, 'args': [number, (x-self.fontSize/2,y-self.fontSize/2 + 5)]}
+                ]
 
     def createAtomCircleEntity(self, atom, rad):
         x = self.radius*math.cos(rad) + self.center[0]
@@ -57,9 +65,11 @@ class Renderer():
             entities += self.createAtomCircleEntity(a, (2*math.pi)*(i/len(atoms)) + self.offset)
         return entities
 
-    def drawFrame(self):
+    def drawFrames(self):
         #self.offset += 0.005
         self.screen.fill(self.backgroundColor)
+        if(self.mctx._MergedAtoms['center'] != None):
+            self.animateMerge()
         dynamicEntities = self.createAtomCircleEntities(self.mctx._AtomCircle)
         dynamicEntities += self.createAtomEntity(self.mctx._CenterAtom, self.center[0], self.center[1])
 
@@ -73,7 +83,7 @@ class Renderer():
         self.entities.append({'fn': pygame.draw.circle, 'args': [self.screen, self.backgroundColor, [x/2, y/2], self.radius+self.atomRadius+5-1]})
 
     def animateNewAtom(self, idx):
-        frames = 10
+        frames = int(self.fps/3)
         n = len(self.mctx._AtomCircle)
 
         rad = ((2*math.pi*idx)/(n+1) + self.offset) % (2*math.pi) if n != 0 else -math.pi/2
@@ -103,6 +113,9 @@ class Renderer():
         for e in pygame.event.get(): #ignore input during this time
             continue
 
+    def animateMerge(self):
+        print(self.mctx._MergedAtoms)
+
 
 
     def handleClick(self, event):
@@ -128,6 +141,7 @@ class Renderer():
 
     def updateStateMachine(self, mctx):
         self.stateMachineUpdates = []
+        self.last_mctx = self.mctx
         self.mctx = mctx
 
     def getStateMachineInput(self):

@@ -13,7 +13,7 @@ class Atom:
         return "Atom value: " + str( self._Value )
 
     def __repr__( self ):
-        return "Atom( " + str( self._Value )
+        return "Atom(" + str( self._Value ) + ")"
 
 class StateMachine:
     def __init__( self, MaxAtoms ):
@@ -21,6 +21,7 @@ class StateMachine:
         self._MaxAtoms = MaxAtoms
         self._AtomCircle = []
         self._CenterAtom = Atom(0)
+        self._MergedAtoms = {'center': None, 'surrounding': 0}
 
     def __str__( self ):
         GameStateString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -47,21 +48,45 @@ class StateMachine:
             exit( 1 )
 
         self._AtomCircle.insert( index, atom )
-        self._CenterAtom = Atom(random.randint(0,5))
+        self._CenterAtom = self.GenerateAtom()
 
-        if ( atom._Value == "+" ):
-            self.mergeAtoms( index )
-        elif ( atom._Value == "-" ):
+        self.mergeAtoms()
+        if ( atom._Value == "-" ):
             self.minusAtom( index )
 
         if ( len( self._AtomCircle ) >= self._MaxAtoms ):
             self.GameOver()
 
-    def mergeAtoms( self, index ):
-        #TODO check adjacent atoms and merge as necessary
-        #TODO merge iteratively multiple times or maybe merge recursively
+    def mergeAtoms( self ):
+        #Todo: can have multiple "center"/"surroudning" atoms due to more complex chaining of atoms
+        index = 0
+        while index != len(self._AtomCircle) and  len(self._AtomCircle) >= 3:
+            if self._AtomCircle[index]._Value == '+':
+                indexp1 = (index+1) % len(self._AtomCircle)
+                indexm1 = (index-1) % len(self._AtomCircle)
+                if self._AtomCircle[indexm1]._Value != self._AtomCircle[indexp1]._Value:
+                    index += 1
+                    continue
+                
+                self._MergedAtoms['center'] = index
+                while self._AtomCircle[indexm1]._Value == self._AtomCircle[indexp1]._Value and \
+                  (self._AtomCircle[indexm1]._Value != '+' and self._AtomCircle[indexm1] != '-') and \
+                  len(self._AtomCircle) >= 3:
+                    self._MergedAtoms['surrounding'] += 1
+                    
+                    indexp1 = (index+1) % len(self._AtomCircle)
+                    del self._AtomCircle[indexp1]
 
-        print( "Merging" )
+                    indexm1 = (index-1) % len(self._AtomCircle)
+                    del self._AtomCircle[indexm1]
+                    
+                    if index > indexm1:
+                        index = (index-1) % len(self._AtomCircle)
+                    indexp1 = (index+1) % len(self._AtomCircle)
+                    indexm1 = (index-1) % len(self._AtomCircle)
+                del self._AtomCircle[index]
+                index = 0
+            index += 1
 
     def minusAtom( self, index ):
         #TODO get the atom to be removed
@@ -70,8 +95,13 @@ class StateMachine:
 
     def GenerateAtom( self ):
         #TODO based on score and normal distribution, generate new atom
-        atom = Atom(random.randInt(0,5))
+        avalue = random.randint(0,5)
+        if avalue == 4:
+            avalue = '+'
+        if avalue == 3:
+            avalue = '-'
 
+        atom = Atom(avalue)
         return atom
 
     def GameOver( self ):
@@ -79,11 +109,12 @@ class StateMachine:
         exit( 0 )
 
     class Context:
-        def __init__( self, AtomCircle, CurrentScore, MaxAtoms, CenterAtom ):
+        def __init__( self, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms ):
             self._AtomCircle = copy.deepcopy( AtomCircle )
             self._CurrentScore = CurrentScore
             self._MaxAtoms = MaxAtoms
             self._CenterAtom = CenterAtom
+            self._MergedAtoms = MergedAtoms
 
         def __str__( self ):
             ContextString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -98,10 +129,11 @@ class StateMachine:
             return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
 
     def MachineContext( self ):
-        ctx = StateMachine.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom )
+        ctx = StateMachine.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms )
         return ctx
 
     def input( self, commands ):
+        self._MergedAtoms = {'center': None, 'surrounding': 0}
         for cmdlist in commands:
             for cmd in cmdlist:
                 utils.applyattr(self, cmd, cmdlist[cmd])

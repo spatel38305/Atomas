@@ -21,7 +21,7 @@ def AtomasGameLoop( stateMachine, renderer ):
 
         if renderer:
             renderer.updateStateMachine(mctx)
-            renderer.drawFrame()
+            renderer.drawFrames()
             renderer.getInput()
             if renderer.running == False:
                 running = False

@@ -24,3 +24,4 @@ def apply(fn, params):
             args = params['pargs']
             del params['args']
         fn(*args, **params)
+    
