@@ -16,7 +16,7 @@ class Renderer():
         pygame.font.init()
         self.fontSize = 10
         self.font = pygame.font.SysFont('roboto', self.fontSize)
-        self.screen = pygame.display.set_mode((1920/4,1080/4))
+        self.screen = pygame.display.set_mode((1920/2,1080/2))
         self.clock = pygame.time.Clock()
         x, y = self.screen.get_size()
         self.x = x
@@ -118,6 +118,18 @@ class Renderer():
 
     def handleClick(self, event):
         pos = event.pos
+
+        if self.mctx._Convertable:
+            x1 = self.center[0]
+            y1 = self.center[1]
+            x2, y2 = pos
+            d = ((x2-x1)**2 + (y2-y1)**2)**0.5
+            if d <= self.atomRadius:
+                self.stateMachineUpdates.append({'convertAtom': []})
+                return
+
+        
+
         x, y = self.center
         dx = pos[0] - x
         dy = pos[1] - y
