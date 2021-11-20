@@ -126,6 +126,10 @@ class StateMachine:
         self._CenterAtom = self._AtomCircle[index]
         del self._AtomCircle[index]
 
+    def convertAtom( self ):
+        #Convert the center atom into a plus atom.
+        self._CenterAtom = Atom( "+" )
+
     def GenerateAtom( self ):
         #Probability distribution:
         #minus : 5%
