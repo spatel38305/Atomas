@@ -22,7 +22,7 @@ class StateMachine:
         self._AtomCircle = []
         self._CenterAtom = Atom(0)
         self._MergedAtoms = []
-        self._HighestAtom = 3
+        self._HighestAtom = 5
 
     def __str__( self ):
         GameStateString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -78,7 +78,7 @@ class StateMachine:
                     self._MergedAtoms[len(self._MergedAtoms)-1]['surrounding'].append( self._AtomCircle[indexp1] )
 
                     #Update score.
-                    self._CurrentScore += self._AtomCircle[indexp1]._Value * 2
+                    self._CurrentScore += self._AtomCircle[indexp1]._Value * 2 * len(self._MergedAtoms[len(self._MergedAtoms)-1]["surrounding"])
 
                     indexp1 = (index+1) % len(self._AtomCircle)
                     del self._AtomCircle[indexp1]
@@ -127,12 +127,30 @@ class StateMachine:
         del self._AtomCircle[index]
 
     def GenerateAtom( self ):
-        #TODO based on score and normal distribution, generate new atom
-        avalue = random.randint(self._HighestAtom-2,self._HighestAtom+2)
-        if avalue == (self._HighestAtom + 1):
-            avalue = '+'
-        elif avalue == (self._HighestAtom + 2):
+        #Probability distribution:
+        #minus : 5%
+        #plus  : 15%
+        #1     : 15%
+        #2     : 20%
+        #3     : 20%
+        #4     : 20%
+        #5     : 5%
+        avalue = random.randint(1, 100)
+
+        if ( avalue <= 5 ):
             avalue = '-'
+        elif ( avalue <= 20 ):
+            avalue = '+'
+        elif ( avalue <= 35 ):
+            avalue = self._HighestAtom - 4
+        elif ( avalue <= 55 ):
+            avalue = self._HighestAtom - 3
+        elif ( avalue <= 75 ):
+            avalue = self._HighestAtom - 2
+        elif ( avalue <= 95 ):
+            avalue = self._HighestAtom - 1
+        else:
+            avalue = self._HighestAtom
 
         atom = Atom(avalue)
         return atom
