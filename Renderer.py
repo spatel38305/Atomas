@@ -68,7 +68,7 @@ class Renderer():
     def drawFrames(self):
         #self.offset += 0.005
         self.screen.fill(self.backgroundColor)
-        if(self.mctx._MergedAtoms['center'] != None):
+        if(len(self.mctx._MergedAtoms) > 0):
             self.animateMerge()
         dynamicEntities = self.createAtomCircleEntities(self.mctx._AtomCircle)
         dynamicEntities += self.createAtomEntity(self.mctx._CenterAtom, self.center[0], self.center[1])
@@ -93,7 +93,7 @@ class Renderer():
             self.offset -= d/frames
             self.screen.fill(self.backgroundColor)
             dynamicEntities = []
-            
+
             for cidx in range(n):
                 i = (idx + cidx) % n
                 r = cidx/(n + (f/frames)) + idx/n
@@ -107,7 +107,7 @@ class Renderer():
             self.draw(self.entities + dynamicEntities)
             pygame.display.flip()
             self.clock.tick(self.fps)
-        
+
         self.offset += d
 
         for e in pygame.event.get(): #ignore input during this time
@@ -123,8 +123,8 @@ class Renderer():
             return
         pos = event.pos
         x, y = self.center
-        dx = pos[0] - x 
-        dy = pos[1] - y 
+        dx = pos[0] - x
+        dy = pos[1] - y
         rad = math.atan2(dy, dx)
         rad = (rad - self.offset) % (2*math.pi)
         idx = math.ceil(rad/(2*math.pi)*len(self.mctx._AtomCircle))

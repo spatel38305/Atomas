@@ -4,10 +4,10 @@ from Renderer import *
 
 def InitializeGame( args ):
     stateMachine = StateMachine( 18 )
-    
+
     if args and 'render' in args and args['render'] == True:
         return (stateMachine, Renderer())
-    else:        
+    else:
         return (stateMachine, None)
 
 def AtomasGameLoop( stateMachine, renderer ):
@@ -15,7 +15,7 @@ def AtomasGameLoop( stateMachine, renderer ):
 
     running = True
     while( running ):
-        
+
         mctx = stateMachine.MachineContext()
         smi = None
 
@@ -28,7 +28,7 @@ def AtomasGameLoop( stateMachine, renderer ):
                 break
 
             smi = renderer.getStateMachineInput()
-            
+
         else:
             #TODO automate input
             # smi = ai.getStateMachineInput()
