@@ -15,10 +15,10 @@ class ContextConverter:
     def __repr__( self ):
         return "ContextConverter()"
 
-    def updateContext( mctx ):
+    def updateContext( self, mctx ):
         self._mctx = mctx
 
-    def convertContext():
+    def convertContext( self ):
         x = np.ndarray( ( 20 ) )
         y = np.ndarray( ( 1 ) )
 
@@ -40,11 +40,11 @@ class ContextConverter:
         for i in range( 0, self._mctx._MaxAtoms - len( self._mctx._AtomCircle ) ):
             x[i + len( self._mctx._AtomCircle ) + 2] = 0
 
-        y[0] = self._CurrentScore
+        y[0] = self._mctx._CurrentScore
 
         self._convertedMctx = ( x, y )
 
-    def getConvertedContext():
+    def getConvertedContext( self ):
         return self._convertedMctx
 
 if __name__ == "__main__":

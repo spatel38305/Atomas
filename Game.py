@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+from threading import Thread
+
 from StateMachine import *
 from Renderer import *
-from threading import Thread
+from ContextConverter import *
 
 cli = ''
 def get_user_cli_input():
@@ -28,11 +30,11 @@ def InitializeGame( args ):
     stateMachine = StateMachine( 18 )
 
     if args and 'render' in args and args['render'] == True:
-        return (stateMachine, Renderer())
+        return (stateMachine, Renderer(), ContextConverter())
     else:
-        return (stateMachine, None)
+        return (stateMachine, None, ContextConverter())
 
-def AtomasGameLoop( stateMachine, renderer ):
+def AtomasGameLoop( stateMachine, renderer, contextConverter ):
     global cli
     iteration = 0
 
@@ -53,9 +55,17 @@ def AtomasGameLoop( stateMachine, renderer ):
 
         else:
             #TODO automate input
-            # smi = ai.getStateMachineInput()
+            contextConverter.updateContext( mctx )
+            contextConverter.convertContext()
+            convertedMctx = contextConverter.getConvertedContext()
+
+            print( convertedMctx )
+            # smi = ai.getStateMachineInput( convertedMctx )
+            smi = []
+
+            #TODO make sure center atom is convertable for convert action.
             pass
-        
+
         if cli != '':
             smi = docli(cli.split(), stateMachine)
             cli = ''
@@ -71,8 +81,8 @@ def main():
     t.start()
     args = {'render': True}
 
-    stateMachine, renderer = InitializeGame( args )
-    AtomasGameLoop( stateMachine, renderer )
+    stateMachine, renderer, contextConverter = InitializeGame( args )
+    AtomasGameLoop( stateMachine, renderer, contextConverter )
 
 if __name__ == "__main__":
     main()
