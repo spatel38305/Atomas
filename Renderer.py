@@ -116,8 +116,6 @@ class Renderer():
     def animateMerge(self):
         print(self.mctx._MergedAtoms)
 
-
-
     def handleClick(self, event):
         pos = event.pos
         x, y = self.center
@@ -131,16 +129,21 @@ class Renderer():
         self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom, idx]})
 
     def handleCapture(self, event):
-        pos = event.pos
-        x, y = self.center
-        dx = pos[0] - x
-        dy = pos[1] - y
-        rad = math.atan2(dy, dx)
-        rad = (rad - self.offset) % (2*math.pi)
-
-        clickedAtomIdx = 0
-
-        self.stateMachineUpdates.append({'minusAtom': [clickedAtomIdx]})
+        clickedAtomIdx = -1
+        ln = len(self.mctx._AtomCircle)
+        for i in range(ln):
+            rad = (2*math.pi)*(i/ln) + self.offset
+            x1 = self.radius*math.cos(rad) + self.center[0]
+            y1 = self.radius*math.sin(rad) + self.center[1]
+            x2, y2 = event.pos
+            d = ((x2-x1)**2 + (y2-y1)**2)**0.5
+            if d <= self.atomRadius:
+                clickedAtomIdx = i
+                break
+        
+        if clickedAtomIdx != -1:
+            self.stateMachineUpdates.append({'minusAtom': [clickedAtomIdx]})
+        return clickedAtomIdx
 
     def getInput(self):
         for event in pygame.event.get():
