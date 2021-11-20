@@ -14,8 +14,6 @@ class Renderer():
     def __init__(self):
         pygame.init()
         pygame.font.init()
-        self.fontSize = 10
-        self.font = pygame.font.SysFont('roboto', self.fontSize)
         self.screen = pygame.display.set_mode((1920/2,1080/2))
         self.clock = pygame.time.Clock()
         x, y = self.screen.get_size()
@@ -27,6 +25,8 @@ class Renderer():
         self.running = True
         self.radius = min(x,y)/3
         self.atomRadius = self.radius/6
+        self.fontSize = int(self.atomRadius/2)
+        self.font = pygame.font.SysFont('roboto', self.fontSize)
         self.offset = -math.pi/2
         self.backgroundColor = (255, 255, 255)
         self.last_mctx = None
@@ -43,15 +43,15 @@ class Renderer():
             txt = self.font.render(atom._Value, True, (255,255,255))
             return [
                 {'fn': pygame.draw.circle, 'args': [self.screen, ptable[atom._Value]['color'], [x,y], self.atomRadius] },
-                {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]}
+                {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - self.atomRadius/5)]}
             ]
         else:
             txt = self.font.render(ptable[atom._Value]['symbol'], True, (255,255,255))
             number = self.font.render(str(atom._Value + 1), True, (255,255,255))
             return [
                     {'fn': pygame.draw.circle, 'args': [self.screen, ptable[atom._Value]['color'], [x,y], self.atomRadius] },
-                    {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]},
-                    {'fn': self.screen.blit, 'args': [number, (x-self.fontSize/2,y-self.fontSize/2 + 5)]}
+                    {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 1.5*self.atomRadius/5)]},
+                    {'fn': self.screen.blit, 'args': [number, (x-self.fontSize/2,y-self.fontSize/2 + self.atomRadius/5)]}
                 ]
 
     def createAtomCircleEntity(self, atom, rad):
