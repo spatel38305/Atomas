@@ -47,7 +47,7 @@ class Renderer():
             ]
         else:
             txt = self.font.render(ptable[atom._Value]['symbol'], True, (255,255,255))
-            number = self.font.render(str(atom._Value), True, (255,255,255))
+            number = self.font.render(str(atom._Value + 1), True, (255,255,255))
             return [
                     {'fn': pygame.draw.circle, 'args': [self.screen, ptable[atom._Value]['color'], [x,y], self.atomRadius] },
                     {'fn': self.screen.blit, 'args': [txt, (x-self.fontSize/2,y-self.fontSize/2 - 3)]},
@@ -119,8 +119,6 @@ class Renderer():
 
 
     def handleClick(self, event):
-        if event.button != 1:
-            return
         pos = event.pos
         x, y = self.center
         dx = pos[0] - x
@@ -132,12 +130,29 @@ class Renderer():
         self.animateNewAtom(idx)
         self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom, idx]})
 
+    def handleCapture(self, event):
+        pos = event.pos
+        x, y = self.center
+        dx = pos[0] - x
+        dy = pos[1] - y
+        rad = math.atan2(dy, dx)
+        rad = (rad - self.offset) % (2*math.pi)
+
+        clickedAtomIdx = 0
+
+        self.stateMachineUpdates.append({'minusAtom': [clickedAtomIdx]})
+
     def getInput(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.handleClick(event)
+                if event.button != 1:
+                    return
+                if self.mctx._CenterAtom._Value == '-':
+                    self.handleCapture(event)
+                else:
+                    self.handleClick(event)
 
     def updateStateMachine(self, mctx):
         self.stateMachineUpdates = []
