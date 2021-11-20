@@ -177,7 +177,5 @@ class Renderer():
     def getStateMachineInput(self):
         return self.stateMachineUpdates
 
-
-
 if __name__ == "__main__":
     Game.main()
