@@ -23,6 +23,7 @@ class StateMachine:
         self._CenterAtom = Atom(0)
         self._MergedAtoms = []
         self._HighestAtom = 5
+        self._Convertable = False
 
     def __str__( self ):
         GameStateString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -53,6 +54,7 @@ class StateMachine:
         else:
             self._AtomCircle.insert( index, atom )
             self._CenterAtom = self.GenerateAtom()
+            self._Convertable = False
 
         self.mergeAtoms()
 
@@ -124,6 +126,7 @@ class StateMachine:
     def minusAtom( self, index ):
         #Set the selected atom as the new center atom and remove it from the circle.
         self._CenterAtom = self._AtomCircle[index]
+        self._Convertable = True
         del self._AtomCircle[index]
 
     def convertAtom( self ):
@@ -165,13 +168,14 @@ class StateMachine:
         exit( 0 )
 
     class Context:
-        def __init__( self, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom ):
+        def __init__( self, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable ):
             self._AtomCircle = copy.deepcopy( AtomCircle )
             self._CurrentScore = CurrentScore
             self._MaxAtoms = MaxAtoms
             self._CenterAtom = CenterAtom
             self._MergedAtoms = MergedAtoms
             self._HighestAtom = HighestAtom
+            self._Convertable = Convertable
 
         def __str__( self ):
             ContextString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -186,7 +190,7 @@ class StateMachine:
             return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
 
     def MachineContext( self ):
-        ctx = StateMachine.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom )
+        ctx = StateMachine.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable )
         return ctx
 
     def input( self, commands ):
