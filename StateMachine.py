@@ -17,6 +17,7 @@ class Atom:
 
 class StateMachine:
     def __init__( self, MaxAtoms ):
+        self._Running = True
         self._CurrentScore = 0
         self._MaxAtoms = MaxAtoms
         self._AtomCircle = []
@@ -38,16 +39,11 @@ class StateMachine:
         return "StateMachine( " + str( self._MaxAtoms ) + " )"
 
     def addAtom( self, atom, index ):
-        try:
-            if ( atom is None ):
-                raise Exception( "atom is None" )
-            if ( index > len(self._AtomCircle)):
-                raise Exception( "added out of bounds index" )
-        except Exception as exc:
-            print( exc )
-            print( "atom should not be None" )
-            print( "DYING NOW!" )
-            exit( 1 )
+        if ( atom is None ):
+            raise Exception( "atom is None" )
+        if ( index > len(self._AtomCircle)):
+            raise Exception( "added out of bounds index" )
+        atom = Atom(atom)
 
         if ( atom._Value == "-" ):
             self.minusAtom( index )
@@ -165,10 +161,11 @@ class StateMachine:
     def GameOver( self ):
         print( "Game Over!" )
         print( "Score: " + str( self._CurrentScore ) )
-        exit( 0 )
+        self._Running = False
 
     class Context:
-        def __init__( self, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable ):
+        def __init__( self, Running, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable ):
+            self._Running = Running
             self._AtomCircle = copy.deepcopy( AtomCircle )
             self._CurrentScore = CurrentScore
             self._MaxAtoms = MaxAtoms
@@ -190,8 +187,18 @@ class StateMachine:
             return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
 
     def MachineContext( self ):
-        ctx = StateMachine.Context( self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable )
+        ctx = StateMachine.Context( self._Running, self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable )
         return ctx
+
+    #debug
+    def convertTo(self, idx, atom):
+        if idx >= 0:
+            self._AtomCircle[idx] = Atom(atom)
+        elif idx == -1:
+            self._CenterAtom = Atom(atom)
+    
+    def delete(self, idx):
+        del self._AtomCircle[idx]
 
     def input( self, commands ):
         self._MergedAtoms = []

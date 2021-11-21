@@ -22,7 +22,6 @@ class Renderer():
         self.fps = 60
         self.center = (x/2, y/2)
         self.entities = []
-        self.running = True
         self.radius = min(x,y)/3
         self.atomRadius = self.radius/6
         self.fontSize = int(self.atomRadius/2)
@@ -67,6 +66,10 @@ class Renderer():
 
     def drawFrames(self):
         #self.offset += 0.005
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return [{'GameOver': []}]
+                
         self.screen.fill(self.backgroundColor)
         if(len(self.mctx._MergedAtoms) > 0):
             self.animateMerge()
@@ -76,6 +79,7 @@ class Renderer():
         self.draw(self.entities + dynamicEntities)
         pygame.display.flip()
         self.clock.tick(self.fps)
+        return []
 
     def createWorld(self):
         x, y = self.screen.get_size()
@@ -117,28 +121,24 @@ class Renderer():
         print(self.mctx._MergedAtoms)
 
     def handleClick(self, event):
-        pos = event.pos
-
         if self.mctx._Convertable:
             x1 = self.center[0]
             y1 = self.center[1]
-            x2, y2 = pos
+            x2, y2 = event.pos
             d = ((x2-x1)**2 + (y2-y1)**2)**0.5
             if d <= self.atomRadius:
                 self.stateMachineUpdates.append({'convertAtom': []})
                 return
 
-        
-
         x, y = self.center
-        dx = pos[0] - x
-        dy = pos[1] - y
+        dx = event.pos[0] - x
+        dy = event.pos[1] - y
         rad = math.atan2(dy, dx)
         rad = (rad - self.offset) % (2*math.pi)
         idx = math.ceil(rad/(2*math.pi)*len(self.mctx._AtomCircle))
 
         self.animateNewAtom(idx)
-        self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom, idx]})
+        self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom._Value, idx]})
 
     def handleCapture(self, event):
         clickedAtomIdx = -1
@@ -160,7 +160,7 @@ class Renderer():
     def getInput(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.running = False
+                self.stateMachineUpdates.append({'GameOver': []})
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button != 1:
                     return

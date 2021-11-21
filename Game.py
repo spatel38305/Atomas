@@ -4,6 +4,7 @@ from threading import Thread
 from StateMachine import *
 from Renderer import *
 from ContextConverter import *
+from cli import docli
 
 cli = ''
 def get_user_cli_input():
@@ -12,77 +13,68 @@ def get_user_cli_input():
     while True:
         cli = input()
 
-def docli(cli, stateMachine):
-    updates = []
-    if cli[0] == 'add':
-        idx = 0
-        if len(cli) > 2:
-            idx = int(cli[2])
-        a = cli[1]
-        if a not in ['+']:
-            a = int(a)
-        updates.append({'addAtom': [Atom(a), idx]})
-    elif cli[0] == 'convert':
-        updates.append({'convertAtom': []})
-    return updates
-
 def InitializeGame( args ):
     stateMachine = StateMachine( 18 )
-
-    if args and 'render' in args and args['render'] == True:
-        return (stateMachine, Renderer(), ContextConverter())
+    if args == None:
+        return (stateMachine, Renderer(), True, ContextConverter())
     else:
-        return (stateMachine, None, ContextConverter())
+        bot = True if 'bot' in args and args['bot'] == True else False
+        render = Renderer() if 'render' in args and args['render'] == True else False
+        debug = True if 'debug' in args and args['debug'] == True else False
+        
+        if debug:
+            t = Thread(target=get_user_cli_input)
+            t.daemon = True
+            t.start()
 
-def AtomasGameLoop( stateMachine, renderer, contextConverter ):
+        if bot == False and render == False:
+            raise Exception('Render off and Bot off, one must be on!')
+        return (stateMachine, Renderer(), bot, ContextConverter(), debug)
+
+def AtomasGameLoop( stateMachine, renderer, bot, contextConverter, debug):
     global cli
     iteration = 0
 
-    running = True
-    while( running ):
+    while( True ):
         mctx = stateMachine.MachineContext()
-        smi = None
+        smi = []
+
+        if mctx._Running == False:
+            break
+        
 
         if renderer:
             renderer.updateStateMachine(mctx)
-            renderer.drawFrames()
-            renderer.getInput()
-            if renderer.running == False:
-                running = False
-                break
+            smi += renderer.drawFrames()
+            if not bot:
+                renderer.getInput()
+                smi += renderer.getStateMachineInput()
 
-            smi = renderer.getStateMachineInput()
-
-        else:
-            #TODO automate input
+        elif bot:
             contextConverter.updateContext( mctx )
             contextConverter.convertContext()
             convertedMctx = contextConverter.getConvertedContext()
-
             print( convertedMctx )
             # smi = ai.getStateMachineInput( convertedMctx )
-            smi = []
-
+            smi += {}
             #TODO make sure center atom is convertable for convert action.
-            pass
 
-        if cli != '':
-            smi = docli(cli.split(), stateMachine)
+        if debug:
+            smi += docli(cli)
             cli = ''
 
         stateMachine.input(smi)
 
         iteration += 1
 
-def main():
+def main():    
+    args = {'render': True, 'bot': False, 'debug': True}
 
-    t = Thread(target=get_user_cli_input)
-    t.daemon = True
-    t.start()
-    args = {'render': True}
-
-    stateMachine, renderer, contextConverter = InitializeGame( args )
-    AtomasGameLoop( stateMachine, renderer, contextConverter )
+    try:
+        AtomasGameLoop( *InitializeGame( args ) )
+    except Exception as e:
+        print(e)
+        return
 
 if __name__ == "__main__":
     main()
