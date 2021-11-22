@@ -205,6 +205,7 @@ class StateMachine:
         for cmdlist in commands:
             for cmd in cmdlist:
                 utils.applyattr(self, cmd, cmdlist[cmd])
+        return self.MachineContext()
 
 
 if __name__ == "__main__":

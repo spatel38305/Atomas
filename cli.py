@@ -1,3 +1,5 @@
+from threading import Thread
+
 def docli(cli):
     if cli == '':
         return []
@@ -33,3 +35,13 @@ def docli(cli):
         raise Exception()
         
     return updates
+
+def startcli(game):
+    game.cli = ''
+    def get_user_cli_input():
+        print('waiting debug input...')
+        while True:
+            game.cli = input()
+    t = Thread(target=get_user_cli_input)
+    t.daemon = True
+    t.start()

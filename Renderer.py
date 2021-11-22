@@ -64,7 +64,7 @@ class Renderer():
             entities += self.createAtomCircleEntity(a, (2*math.pi)*(i/len(atoms)) + self.offset)
         return entities
 
-    def drawFrames(self):
+    def drawFrames(self, smi):
         #self.offset += 0.005
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -168,6 +168,7 @@ class Renderer():
                     self.handleCapture(event)
                 else:
                     self.handleClick(event)
+        return self.getStateMachineInput()
 
     def updateStateMachine(self, mctx):
         self.stateMachineUpdates = []
