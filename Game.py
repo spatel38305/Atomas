@@ -34,7 +34,7 @@ class Game:
         self.iteration += 1
         return mctx
 
-def main(args):    
+def main(args={}):    
     try:
         game = Game(**args)
         smi = []

@@ -4,8 +4,6 @@ from ContextConverter import *
 import neat
 #import neat.visualize
 
-# 2-input XOR inputs and expected outputs.
-
 def run_game(genomes, config):
     nets = []
     games = []
@@ -14,16 +12,12 @@ def run_game(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
         g.fitness = 0
-        games.append(Game({'render': False, 'bot': True}))
+        games.append(Game.Game(**{'render': False, 'bot': True}))
 
     while True:
         for index, game in enumerate(games):
-            mctx = game.runTick(game.smi)
-            contextConverter = ContextConverter
-            contextConverter.updateContext(mctx)
-            contextConverter.convertContext()
-            inputs = contextConverter.getConvertedContext()
-            print( inputs )
+            mctx = game.runTick(game.smi)          
+            inputs, score = convertContext(mctx)
             output = nets[index].activate(inputs)
             #todo: give shivam output to convert to smi
             # smi = convertSMI(output)
@@ -48,11 +42,13 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    winner = p.run(eval_genomes, 300)
+    winner = p.run(run_game, 300)
 
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))
 
+    return
+    '''
     # Show output of the most fit genome against training data.
     print('\nOutput:')
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
@@ -67,6 +63,7 @@ def run(config_file):
 
     p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
     p.run(eval_genomes, 10)
+    '''
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
