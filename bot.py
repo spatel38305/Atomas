@@ -9,25 +9,51 @@ def run_game(genomes, config):
     games = []
 
     for id, g in genomes:
+        # create feed forward network for this genome
         net = neat.nn.FeedForwardNetwork.create(g, config)
+        # save network
         nets.append(net)
+        # set initial fitness to zero
         g.fitness = 0
+        # create game for this genome
         games.append(Game.Game(**{'render': False, 'bot': True}))
 
-    while True:
-        for index, game in enumerate(games):
-            mctx = game.runTick(game.smi)          
+    max_iter = 200
+    i = 0
+    alive_games = len(games)
+    #run games until all genomes are dead (or max iteration hit)
+    while alive_games > 0 and i < max_iter:
+        i += 1
+        for genome, net, game in zip(genomes, nets, games):
+            # get machine context
+            mctx = game.stateMachine.MachineContext()
+            if not mctx._Running:
+                continue
+
+            # convert context to get valid inputs
             inputs, score = convertContext(mctx)
-            output = nets[index].activate(inputs)
-            #todo: give shivam output to convert to smi
+            
+            # input into NEAT
+            output = net.activate(inputs)
+
+            # TODO: give shivam output to convert to smi
             # smi = convertSMI(output)
+            smi = []
+
+            # run game with bot's input
+            mctx = game.runTick(smi)
+
+            # convert context to get valid score
+            inputs, score = convertContext(mctx)
+
+            # update score
+            genome[1].fitness = score
+
+            if not mctx._Running:
+                alive_games -= 1
+
             game.smi = []
             
-
-
-
-
-
 def run(config_file):
     # Load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
