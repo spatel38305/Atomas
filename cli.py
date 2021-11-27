@@ -15,7 +15,7 @@ def docli(cli):
         idx = int(args[1])
         a = args[2]
         if a not in ['+']:
-            a = int(a)
+            a = int(a)-1
         updates.append({'addAtom': [a, idx]})
     elif args[0] == 'convert':
         if len(args) != 3:
@@ -24,7 +24,7 @@ def docli(cli):
         idx = int(args[1])
         a = args[2]
         if a not in ['+']:
-            a = int(a)
+            a = int(a)-1
         updates.append({'convertTo': [idx, a]})
     elif args[0] == 'delete':
         if len(args) != 2:

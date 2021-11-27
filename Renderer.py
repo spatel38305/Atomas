@@ -64,7 +64,7 @@ class Renderer():
             entities += self.createAtomCircleEntity(a, (2*math.pi)*(i/len(atoms)) + self.offset)
         return entities
 
-    def drawFrames(self, smi):
+    def drawFrames(self):
         #self.offset += 0.005
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

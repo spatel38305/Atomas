@@ -24,12 +24,13 @@ class Game:
             raise Exception()
         
         if self.debug:
-            smi += docli(self.cli)
+            dbg = docli(self.cli)
+            self.stateMachine.input(dbg)
             self.cli = ''
 
         if self.renderer:
             self.renderer.updateStateMachine(mctx)
-            smi += self.renderer.drawFrames(smi)
+            smi += self.renderer.drawFrames()
         
         self.iteration += 1
         return mctx
@@ -48,5 +49,5 @@ def main(args={}):
         return
 
 if __name__ == "__main__":
-    args = {'render': True, 'interactive': True, 'bot': True, 'debug': False}
+    args = {'render': True, 'interactive': True, 'bot': False, 'debug': True}
     main(args)
