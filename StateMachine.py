@@ -5,6 +5,11 @@ import random
 import Game
 import utils
 
+import sys
+
+def f():
+    sys.stdout.flush()
+
 class Atom:
     def __init__( self, value ):
         self._Value = value
@@ -52,72 +57,140 @@ class StateMachine:
             self._CenterAtom = self.GenerateAtom()
             self._Convertable = False
 
-        self.mergeAtoms()
+        self.checkMerge()
 
         if ( len( self._AtomCircle ) >= self._MaxAtoms ):
             self.GameOver()
 
-    def mergeAtoms( self ):
-        #Merge atoms with the same value on both sides of a '+' atom.
+    def checkMerge( self ):
+
+        print()
+        print( "Checking for merge. Len: %d" % ( len( self._AtomCircle ) ) )
+        print()
+        f()
+
         index = 0
-        while index != len(self._AtomCircle) and  len(self._AtomCircle) >= 3:
-            if self._AtomCircle[index]._Value == '+':
-                indexp1 = (index+1) % len(self._AtomCircle)
-                indexm1 = (index-1) % len(self._AtomCircle)
-                if self._AtomCircle[indexm1]._Value != self._AtomCircle[indexp1]._Value:
+        largestMerge = 0
+        mergeIndex = -1
+
+        while ( ( len( self._AtomCircle ) >= 3 ) and ( index < len( self._AtomCircle ) ) ):
+
+            if ( self._AtomCircle[index]._Value == '+' ):
+                nindex = ( index + 1 ) % ( len( self._AtomCircle ) )
+                pindex = ( index - 1 ) % ( len( self._AtomCircle ) )
+
+                if ( self._AtomCircle[nindex]._Value != self._AtomCircle[pindex]._Value ):
                     index += 1
                     continue
 
-                self._MergedAtoms.append( { "center" : None, "surrounding" : [] } )
-                self._MergedAtoms[len(self._MergedAtoms)-1]['center'] = self._AtomCircle[index]
-                while self._AtomCircle[indexm1]._Value == self._AtomCircle[indexp1]._Value and \
-                  (self._AtomCircle[indexm1]._Value != '+' and self._AtomCircle[indexm1] != '-') and \
-                  len(self._AtomCircle) >= 3:
-                    self._MergedAtoms[len(self._MergedAtoms)-1]['surrounding'].append( self._AtomCircle[indexp1] )
+                if ( ( self._AtomCircle[nindex]._Value == "+" ) or ( self._AtomCircle[pindex]._Value == "-" ) ):
+                    index += 1
+                    continue
 
-                    #Update score.
-                    self._CurrentScore += self._AtomCircle[indexp1]._Value * 2 * len(self._MergedAtoms[len(self._MergedAtoms)-1]["surrounding"])
+                print()
+                print( "Index: %d" % ( index ) )
+                print( "Left Index: %d, Left: %d" % ( pindex, self._AtomCircle[pindex]._Value ) )
+                print( "Right Index: %d, Right: %d" % ( nindex, self._AtomCircle[nindex]._Value ) )
+                print( "Len: %d" % ( len( self._AtomCircle ) ) )
+                print()
+                f()
 
-                    indexp1 = (index+1) % len(self._AtomCircle)
-                    del self._AtomCircle[indexp1]
+                mCount = self.mergeCount( index )
+                if ( mCount > largestMerge ):
+                    largestMerge = mCount
+                    mergeIndex = index
 
-                    indexm1 = (index-1) % len(self._AtomCircle)
-                    del self._AtomCircle[indexm1]
-
-                    if index > indexm1:
-                        index = (index-1) % len(self._AtomCircle)
-                    indexp1 = (index+1) % len(self._AtomCircle)
-                    indexm1 = (index-1) % len(self._AtomCircle)
-
-                mergeValue = self._MergedAtoms[len(self._MergedAtoms)-1]["center"]._Value
-
-                if ( mergeValue == '+' ):
-                    mergeValue = 0
-
-                prevValue = mergeValue
-                for s in self._MergedAtoms[len(self._MergedAtoms)-1]["surrounding"]:
-                    if ( mergeValue == 0 ):
-                        mergeValue = s._Value + 1
-                        prevValue = s._Value
-                        continue
-
-                    if ( prevValue >= s._Value ):
-                        mergeValue += 1
-                        prevValue = s._Value
-                        continue
-
-                    if ( prevValue < s._Value ):
-                        mergeValue += s._Value - prevValue + 1
-                        prevValue = s._Value
-                        continue
-
-                self._AtomCircle[index] = Atom( mergeValue )
-
-                if ( mergeValue > self._HighestAtom ):
-                    self._HighestAtom = mergeValue
-
-                index = 0
             index += 1
+
+        if ( largestMerge != 0 ):
+
+            print()
+            print( "Merging at index %d with mergeCount %d" % ( mergeIndex, largestMerge ) )
+            print()
+            f()
+
+            self.mergeAtoms( mergeIndex, largestMerge )
+            self.checkMerge()
+
+    def mergeCount( self, index ):
+        mCount = 0
+        nCheck = index + 1
+        pCheck = index - 1
+        nindex = nCheck % len( self._AtomCircle )
+        pindex = pCheck % len( self._AtomCircle )
+        nAtom = self._AtomCircle[nindex]
+        pAtom = self._AtomCircle[pindex]
+
+        while ( ( ( nCheck - pCheck ) < len( self._AtomCircle ) ) and ( nAtom._Value == pAtom._Value ) and ( nAtom._Value != "+" ) and ( pAtom._Value != "-" ) ):
+            mCount += 1
+            nCheck += 1
+            pCheck -= 1
+            nindex = nCheck % len( self._AtomCircle )
+            pindex = pCheck % len( self._AtomCircle )
+            nAtom = self._AtomCircle[nindex]
+            pAtom = self._AtomCircle[pindex]
+
+        return mCount
+
+    def mergeAtoms( self, index, largestMerge ):
+        self._MergedAtoms.append( { "center" : None, "surrounding" : [] } )
+        mindex = len( self._MergedAtoms ) - 1
+        self._MergedAtoms[mindex]["center"] = self._AtomCircle[index]
+        mCount = 0
+        nindex = ( index + 1 ) % ( len( self._AtomCircle ) )
+        pindex = ( index - 1 ) % ( len( self._AtomCircle ) )
+
+        while ( mCount < largestMerge ):
+            self._MergedAtoms[mindex]["surrounding"].append( self._AtomCircle[nindex] )
+
+            #Update score.
+            self._CurrentScore += self._AtomCircle[pindex]._Value * 2 * len( self._MergedAtoms[mindex]["surrounding"] )
+
+            print()
+            print( "Len: %d" % ( len( self._AtomCircle ) ) )
+            print( "Deleting left: %d, val: %d" % ( pindex, self._AtomCircle[pindex]._Value ) )
+            print( "Deleting right: %d, val: %d" % ( nindex, self._AtomCircle[nindex]._Value ) )
+            print()
+            f()
+
+            del self._AtomCircle[nindex]
+            del self._AtomCircle[pindex]
+
+            index = ( index - 1 ) % len( self._AtomCircle )
+            nindex = ( index + 1 ) % ( len( self._AtomCircle ) )
+            pindex = ( index - 1 ) % ( len( self._AtomCircle ) )
+            mCount += 1
+
+        mergeValue = self._MergedAtoms[mindex]["center"]._Value
+
+        if ( mergeValue == "+" ):
+            mergeValue = 0
+
+        pMerge = mergeValue
+        for s in self._MergedAtoms[mindex]["surrounding"]:
+
+            if ( mergeValue == 0 ):
+                mergeValue = s._Value + 1
+                pMerge = s._Value
+                continue
+
+            if ( pMerge >= s._Value ):
+                mergeValue += 1
+                pMerge = s._Value
+                continue
+
+            if ( pMerge < s._Value ):
+                mergeValue += s._Value - pMerge + 1
+                pMerge = s._Value
+                continue
+
+        print( "Setting atom at index " + str( index ) + " to atom " + str( mergeValue ) + ". Len is " + str( len( self._AtomCircle ) ) )
+        f()
+
+        self._AtomCircle[index] = Atom( mergeValue )
+
+        if ( mergeValue > self._HighestAtom ):
+            self._HighestAtom = mergeValue
 
     def minusAtom( self, index ):
         #Set the selected atom as the new center atom and remove it from the circle.
@@ -196,7 +269,7 @@ class StateMachine:
             self._AtomCircle[idx] = Atom(atom)
         elif idx == -1:
             self._CenterAtom = Atom(atom)
-    
+
     def delete(self, idx):
         del self._AtomCircle[idx]
 
