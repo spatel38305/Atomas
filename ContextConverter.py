@@ -21,12 +21,13 @@ def convertContext( mctx ):
         x[1] = mctx._CenterAtom._Value
 
     for i, a in enumerate( mctx._AtomCircle ):
-        x[i + 2] = a._Value
+        v = -1 if a._Value == '+' else a._Value
+        x[i + 2] = v
 
     for i in range( 0, mctx._MaxAtoms - len( mctx._AtomCircle ) ):
         x[i + len( mctx._AtomCircle ) + 2] = 0
 
-    y[0] = mctx._CurrentScore
+    y[0] = mctx._CurrentScore + mctx._TotalThrown
 
     return x, y
 
@@ -39,7 +40,7 @@ def convertOutput( bOut, mctx ):
     if ( indices.size > 1 ):
         choice = np.random.choice( indices )
     else:
-        choice = indices[0]
+        choice = indices
 
     #Check for converting center atom to +.
     if ( choice == 18 ):
@@ -47,12 +48,11 @@ def convertOutput( bOut, mctx ):
     else:
         #Check for -.
         if ( mctx._CenterAtom._Value == "-" ):
-            actions.append( { "minusAtom" : [ choice ] } )
+            if ( choice < len( mctx._AtomCircle ) ):
+                actions.append( { "minusAtom" : [ choice ] } )
         else:
-            actions.append( { "addAtom" : [ mctx._CenterAtom._Value, choice ] } )
-
-        if ( choice >= len( mctx._AtomCircle ) ):
-            actions = []
+            if ( choice <= len( mctx._AtomCircle ) ):
+                actions.append( { "addAtom" : [ mctx._CenterAtom._Value, choice ] } )
 
     return actions
 

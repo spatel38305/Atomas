@@ -8,7 +8,7 @@ def run_game(genomes, config):
     nets = []
     games = []
 
-    for id, g in genomes:
+    for _,g in genomes:
         # create feed forward network for this genome
         net = neat.nn.FeedForwardNetwork.create(g, config)
         # save network
@@ -27,34 +27,28 @@ def run_game(genomes, config):
         for genome, net, game in zip(genomes, nets, games):
             # get machine context
             mctx = game.stateMachine.MachineContext()
+            #if game over, don't try and continue running this genome
             if not mctx._Running:
                 continue
-
             # convert context to get valid inputs
             inputs, score = convertContext(mctx)
-            
             # input into NEAT
             output = net.activate(inputs)
-
-            # TODO: give shivam output to convert to smi
-            # smi = convertSMI(output)
-            smi = []
-
+            # convert bot output to game state machine input
+            smi = convertOutput(output, mctx)
             # run game with bot's input
             mctx = game.runTick(smi)
-
             # convert context to get valid score
             inputs, score = convertContext(mctx)
-
             # update score
-            genome[1].fitness = score
-
+            genome[1].fitness = score[0]
+            # update remaining games
             if not mctx._Running:
                 alive_games -= 1
-
-            game.smi = []
             
-def run(config_file):
+def run():
+    local_dir = os.path.dirname(__file__)
+    config_file = os.path.join(local_dir, 'config-feedforward')
     # Load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
@@ -92,6 +86,4 @@ def run(config_file):
     '''
 
 if __name__ == '__main__':
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config-feedforward')
-    run(config_path)
+    run()

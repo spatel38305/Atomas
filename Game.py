@@ -2,7 +2,7 @@
 from StateMachine import *
 from Renderer import *
 from cli import *
-import traceback
+import bot
 
 class Game:
     def __init__(self, render=False, interactive=True, bot=True, debug=False):
@@ -12,7 +12,6 @@ class Game:
         self.renderer = Renderer() if render else False
         self.interactive = interactive
         self.debug = debug
-        self.smi = []
         if self.debug:
             startcli(self)
         if self.bot == False and self.renderer == False:
@@ -21,10 +20,8 @@ class Game:
     def runTick(self, smi):
         mctx = self.stateMachine.input(smi)
 
-        print( mctx )
-
         if mctx._Running == False:
-            raise Exception()
+            return mctx
 
         if self.debug:
             dbg = docli(self.cli)
@@ -38,19 +35,22 @@ class Game:
         self.iteration += 1
         return mctx
 
+
 def main(args={}):
-    try:
+    if args['bot'] and args['bot'] == True:
+        bot.run()
+    else:
         game = Game(**args)
         smi = []
-        while True:
-            game.runTick(smi)
+        running = True
+        while running:
+            mctx = game.runTick(smi)
+            running = mctx._Running
             smi = []
             if game.renderer and game.interactive:
                 smi += game.renderer.getInput()
-    except Exception as e:
-        print(e)
-        traceback.print_stack()
-        return
+        print('Game Over')
+        print(mctx._CurrentScore)
 
 if __name__ == "__main__":
     args = {'render': True, 'interactive': True, 'bot': False, 'debug': True}

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import copy
 import random
+import math
 
 import Game
 import utils
@@ -95,7 +96,7 @@ class StateMachine:
         nAtom = self._AtomCircle[nindex]
         pAtom = self._AtomCircle[pindex]
 
-        while ( ( ( nCheck - pCheck ) < len( self._AtomCircle ) ) and ( nAtom._Value == pAtom._Value ) and ( nAtom._Value != "+" ) and ( pAtom._Value != "-" ) ):
+        while ( ( ( nCheck - pCheck ) < len( self._AtomCircle ) ) and ( nAtom._Value == pAtom._Value ) and ( nAtom._Value != "+" and pAtom._Value != '+' ) and ( nAtom._Value != '-' and pAtom._Value != "-" ) ):
             mCount += 1
             nCheck += 1
             pCheck -= 1
@@ -182,29 +183,34 @@ class StateMachine:
         #3     : 20%
         #4     : 20%
         #5     : 5%
+        if len(self._AtomCircle) == 0:
+            return Atom(0)
+
         avalue = random.randint(1, 100)
+
+        atomRange = int(math.log10(self._CurrentScore)) if self._CurrentScore > 10 else 1
 
         if ( avalue <= 5 ):
             avalue = '-'
         elif ( avalue <= 20 ):
             avalue = '+'
         elif ( avalue <= 35 ):
-            avalue = self._HighestAtom - 4
+            avalue = atomRange + 1
         elif ( avalue <= 55 ):
-            avalue = self._HighestAtom - 3
+            avalue = atomRange + 2
         elif ( avalue <= 75 ):
-            avalue = self._HighestAtom - 2
+            avalue = atomRange + 3
         elif ( avalue <= 95 ):
-            avalue = self._HighestAtom - 1
+            avalue = atomRange + 4
         else:
-            avalue = self._HighestAtom
+            avalue = atomRange
 
         atom = Atom(avalue)
         return atom
 
     def GameOver( self ):
-        print( "Game Over!" )
-        print( "Score: " + str( self._CurrentScore ) )
+        # print( "Game Over!" )
+        # print( "Score: " + str( self._CurrentScore ) )
         self._Running = False
 
     class Context:
