@@ -45,14 +45,10 @@ class StateMachine:
             raise Exception( "added out of bounds index" )
         atom = Atom(atom)
 
-        if ( atom._Value == "-" ):
-            self.minusAtom( index )
-            self.checkMerge()
-        else:
-            self._AtomCircle.insert( index, atom )
-            self._CenterAtom = self.GenerateAtom()
-            self._Convertable = False
-            self.checkMerge()
+        self._AtomCircle.insert( index, atom )
+        self._CenterAtom = self.GenerateAtom()
+        self._Convertable = False
+        self.checkMerge()
 
         if ( len( self._AtomCircle ) >= self._MaxAtoms ):
             self.GameOver()
@@ -168,6 +164,7 @@ class StateMachine:
         self._CenterAtom = self._AtomCircle[index]
         self._Convertable = True
         del self._AtomCircle[index]
+        self.checkMerge()
 
     def convertAtom( self ):
         #Convert the center atom into a plus atom.
