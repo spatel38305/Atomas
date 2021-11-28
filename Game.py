@@ -2,6 +2,7 @@
 from StateMachine import *
 from Renderer import *
 from cli import *
+import traceback
 
 class Game:
     def __init__(self, render=False, interactive=True, bot=True, debug=False):
@@ -19,10 +20,12 @@ class Game:
 
     def runTick(self, smi):
         mctx = self.stateMachine.input(smi)
-        
+
+        print( mctx )
+
         if mctx._Running == False:
             raise Exception()
-        
+
         if self.debug:
             dbg = docli(self.cli)
             self.stateMachine.input(dbg)
@@ -31,11 +34,11 @@ class Game:
         if self.renderer:
             self.renderer.updateStateMachine(mctx)
             smi += self.renderer.drawFrames()
-        
+
         self.iteration += 1
         return mctx
 
-def main(args={}):    
+def main(args={}):
     try:
         game = Game(**args)
         smi = []
@@ -46,6 +49,7 @@ def main(args={}):
                 smi += game.renderer.getInput()
     except Exception as e:
         print(e)
+        traceback.print_stack()
         return
 
 if __name__ == "__main__":

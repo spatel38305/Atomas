@@ -27,8 +27,34 @@ def convertContext( mctx ):
         x[i + len( mctx._AtomCircle ) + 2] = 0
 
     y[0] = mctx._CurrentScore
-    
-    return x, y 
+
+    return x, y
+
+def convertOutput( bOut, mctx ):
+    actions = []
+    indices = np.argmax( bOut )
+    choice = -1
+
+    #Check if there are multiple indices.
+    if ( indices.size > 1 ):
+        choice = np.random.choice( indices )
+    else:
+        choice = indices[0]
+
+    #Check for converting center atom to +.
+    if ( choice == 18 ):
+        actions.append( { "convertAtom" : [] } )
+    else:
+        #Check for -.
+        if ( mctx._CenterAtom._Value == "-" ):
+            actions.append( { "minusAtom" : [ choice ] } )
+        else:
+            actions.append( { "addAtom" : [ mctx._CenterAtom._Value, choice ] } )
+
+        if ( choice >= len( mctx._AtomCircle ) ):
+            actions = []
+
+    return actions
 
 if __name__ == "__main__":
     Game.main()

@@ -25,6 +25,7 @@ class StateMachine:
         self._MergedAtoms = []
         self._HighestAtom = 5
         self._Convertable = False
+        self._TotalThrown = 0
 
     def __str__( self ):
         GameStateString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -52,6 +53,8 @@ class StateMachine:
 
         if ( len( self._AtomCircle ) >= self._MaxAtoms ):
             self.GameOver()
+
+        self._TotalThrown += 1
 
     def checkMerge( self ):
         index = 0
@@ -205,7 +208,7 @@ class StateMachine:
         self._Running = False
 
     class Context:
-        def __init__( self, Running, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable ):
+        def __init__( self, Running, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable, TotalThrown ):
             self._Running = Running
             self._AtomCircle = copy.deepcopy( AtomCircle )
             self._CurrentScore = CurrentScore
@@ -214,6 +217,7 @@ class StateMachine:
             self._MergedAtoms = MergedAtoms
             self._HighestAtom = HighestAtom
             self._Convertable = Convertable
+            self._TotalThrown = TotalThrown
 
         def __str__( self ):
             ContextString = "Current Score: " + str( self._CurrentScore ) + "\n"
@@ -222,13 +226,15 @@ class StateMachine:
             for i, atom in enumerate( self._AtomCircle ):
                 ContextString += "Atom #" + str( i ) + ": " + str( atom ) + "\n"
 
+            ContextString += "Center Atom: " + str( self._CenterAtom ) + "\n"
+
             return ContextString
 
         def __repr__( self ):
             return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
 
     def MachineContext( self ):
-        ctx = StateMachine.Context( self._Running, self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable )
+        ctx = StateMachine.Context( self._Running, self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable, self._TotalThrown )
         return ctx
 
     #debug
