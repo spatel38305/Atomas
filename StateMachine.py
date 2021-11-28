@@ -5,11 +5,6 @@ import random
 import Game
 import utils
 
-import sys
-
-def f():
-    sys.stdout.flush()
-
 class Atom:
     def __init__( self, value ):
         self._Value = value
@@ -52,23 +47,17 @@ class StateMachine:
 
         if ( atom._Value == "-" ):
             self.minusAtom( index )
+            self.checkMerge()
         else:
             self._AtomCircle.insert( index, atom )
             self._CenterAtom = self.GenerateAtom()
             self._Convertable = False
-
-        self.checkMerge()
+            self.checkMerge()
 
         if ( len( self._AtomCircle ) >= self._MaxAtoms ):
             self.GameOver()
 
     def checkMerge( self ):
-
-        print()
-        print( "Checking for merge. Len: %d" % ( len( self._AtomCircle ) ) )
-        print()
-        f()
-
         index = 0
         largestMerge = 0
         mergeIndex = -1
@@ -87,14 +76,6 @@ class StateMachine:
                     index += 1
                     continue
 
-                print()
-                print( "Index: %d" % ( index ) )
-                print( "Left Index: %d, Left: %d" % ( pindex, self._AtomCircle[pindex]._Value ) )
-                print( "Right Index: %d, Right: %d" % ( nindex, self._AtomCircle[nindex]._Value ) )
-                print( "Len: %d" % ( len( self._AtomCircle ) ) )
-                print()
-                f()
-
                 mCount = self.mergeCount( index )
                 if ( mCount > largestMerge ):
                     largestMerge = mCount
@@ -103,12 +84,6 @@ class StateMachine:
             index += 1
 
         if ( largestMerge != 0 ):
-
-            print()
-            print( "Merging at index %d with mergeCount %d" % ( mergeIndex, largestMerge ) )
-            print()
-            f()
-
             self.mergeAtoms( mergeIndex, largestMerge )
             self.checkMerge()
 
@@ -146,17 +121,16 @@ class StateMachine:
             #Update score.
             self._CurrentScore += self._AtomCircle[pindex]._Value * 2 * len( self._MergedAtoms[mindex]["surrounding"] )
 
-            print()
-            print( "Len: %d" % ( len( self._AtomCircle ) ) )
-            print( "Deleting left: %d, val: %d" % ( pindex, self._AtomCircle[pindex]._Value ) )
-            print( "Deleting right: %d, val: %d" % ( nindex, self._AtomCircle[nindex]._Value ) )
-            print()
-            f()
+            if ( nindex > pindex ):
+                del self._AtomCircle[nindex]
+                del self._AtomCircle[pindex]
+            else:
+                del self._AtomCircle[pindex]
+                del self._AtomCircle[nindex]
 
-            del self._AtomCircle[nindex]
-            del self._AtomCircle[pindex]
+            if ( index > pindex ):
+                index = ( index - 1 ) % len( self._AtomCircle )
 
-            index = ( index - 1 ) % len( self._AtomCircle )
             nindex = ( index + 1 ) % ( len( self._AtomCircle ) )
             pindex = ( index - 1 ) % ( len( self._AtomCircle ) )
             mCount += 1
@@ -183,9 +157,6 @@ class StateMachine:
                 mergeValue += s._Value - pMerge + 1
                 pMerge = s._Value
                 continue
-
-        print( "Setting atom at index " + str( index ) + " to atom " + str( mergeValue ) + ". Len is " + str( len( self._AtomCircle ) ) )
-        f()
 
         self._AtomCircle[index] = Atom( mergeValue )
 

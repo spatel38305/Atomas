@@ -10,7 +10,7 @@ def docli(cli):
     if args[0] == 'add':
         idx = 0
         if len(args) != 3:
-            print('useage: add idx atom')
+            print('usage: add idx atom')
             return
         idx = int(args[1])
         a = args[2]
@@ -31,9 +31,13 @@ def docli(cli):
             print('usage: delete idx')
         idx = int(args[1])
         updates.append({'delete': [idx]})
+    elif args[0] == 'merge':
+        if len(args) != 1:
+            print('usage: merge')
+        updates.append({'checkMerge': []})
     elif args[0] == 'exit':
         raise Exception()
-        
+
     return updates
 
 def startcli(game):
