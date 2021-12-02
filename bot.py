@@ -4,7 +4,10 @@ from ContextConverter import *
 import neat
 #import neat.visualize
 
-def run_game(genomes, config):
+mode = 0
+
+def run_games(genomes, config):
+    global mode
     nets = []
     games = []
 
@@ -31,7 +34,7 @@ def run_game(genomes, config):
             if not mctx._Running:
                 continue
             # convert context to get valid inputs
-            inputs, score = convertContext(mctx)
+            inputs, score = convertContext(mode, mctx)
             # input into NEAT
             output = net.activate(inputs)
             # convert bot output to game state machine input
@@ -39,7 +42,7 @@ def run_game(genomes, config):
             # run game with bot's input
             mctx = game.runTick(smi)
             # convert context to get valid score
-            inputs, score = convertContext(mctx)
+            inputs, score = convertContext(mode, mctx)
             # update score
             genome[1].fitness = score[0]
             # update remaining games
@@ -59,10 +62,10 @@ def run():
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+    # p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    winner = p.run(run_game, 300)
+    winner = p.run(run_games, 300)
 
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))
@@ -86,4 +89,5 @@ def run():
     '''
 
 if __name__ == '__main__':
+    mode = 0
     run()
