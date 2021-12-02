@@ -72,7 +72,10 @@ class StateMachine:
                     index += 1
                     continue
 
-                if ( ( self._AtomCircle[nindex]._Value == "+" ) or ( self._AtomCircle[pindex]._Value == "-" ) ):
+                if ( ( self._AtomCircle[nindex]._Value == "+" ) \
+                or ( self._AtomCircle[nindex]._Value == "-" ) \
+                or ( self._AtomCircle[pindex]._Value == "+" ) \
+                or ( self._AtomCircle[pindex]._Value == "-" ) ):
                     index += 1
                     continue
 
@@ -96,7 +99,9 @@ class StateMachine:
         nAtom = self._AtomCircle[nindex]
         pAtom = self._AtomCircle[pindex]
 
-        while ( ( ( nCheck - pCheck ) < len( self._AtomCircle ) ) and ( nAtom._Value == pAtom._Value ) and ( nAtom._Value != "+" and pAtom._Value != '+' ) and ( nAtom._Value != '-' and pAtom._Value != "-" ) ):
+        while ( ( ( nCheck - pCheck ) < len( self._AtomCircle ) ) and ( nAtom._Value == pAtom._Value ) \
+        and ( nAtom._Value != "+" ) and ( pAtom._Value != "+" ) \
+        and ( nAtom._Value != "-" ) and ( pAtom._Value != "-" ) ):
             mCount += 1
             nCheck += 1
             pCheck -= 1
@@ -128,7 +133,9 @@ class StateMachine:
                 del self._AtomCircle[pindex]
                 del self._AtomCircle[nindex]
 
-            if ( index > pindex ):
+            if ( index == ( len( self._AtomCircle ) + 1 ) ):
+                index = len( self._AtomCircle ) - 1
+            elif ( index > pindex ):
                 index = ( index - 1 ) % len( self._AtomCircle )
 
             nindex = ( index + 1 ) % ( len( self._AtomCircle ) )
