@@ -3,8 +3,10 @@ import Game
 from ContextConverter import *
 import neat
 import visualize
+import argparse
+import pickle
 
-mode = 1
+mode = 0
 
 def run_games(genomes, config):
     global mode
@@ -19,7 +21,7 @@ def run_games(genomes, config):
         # set initial fitness to zero
         g.fitness = 0
         # create game for this genome
-        games.append(Game.Game(**{'render': False, 'bot': True}))
+        games.append(Game.Game(**{'render': False}))
 
     max_iter = 200
     i = 0
@@ -49,9 +51,10 @@ def run_games(genomes, config):
             if not mctx._Running:
                 alive_games -= 1
             
-def run():
+def run(generations, foutDirName):
+    global mode
     local_dir = os.path.dirname(__file__)
-    config_file = os.path.join(local_dir, 'config-feedforward')
+    config_file = os.path.join(local_dir, 'config-feedforward_{}'.format(mode))
     # Load configuration.
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
@@ -62,24 +65,51 @@ def run():
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(100))
+    p.add_reporter(neat.Checkpointer(100))
 
     # Run for up to 2000 generations.
-    winner = p.run(run_games, 1)
+    winner = p.run(run_games, generations)
 
-    # Display the winning genome.
-    print('\nBest genome:\n{!s}'.format(winner))
+    #create results dir based on mode
+    foutDir = os.path.join(local_dir, foutDirName)
+    if not os.path.exists(foutDir):
+        os.makedirs(foutDir)
+
+    # Save the winning genome
+    with open(os.path.join(foutDir, "winner.pkl"), "wb") as f:
+        pickle.dump(winner, f)
+
 
     # Show output of the most fit genome against training data.
-    print('\nOutput:')
-    visualize.draw_net(config, winner, True)
-    visualize.plot_stats(stats, ylog=False, view=True)
-    visualize.plot_species(stats, view=True)
+    visualize.draw_net(config, winner, filename=os.path.join(foutDir, 'net'))
+    visualize.plot_stats(stats, filename=os.path.join(foutDir, 'avg_fitness.svg'))
+    visualize.plot_species(stats, filename=os.path.join(foutDir, 'speciation.svg'))
 
-    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    #p.run(run_games, 10)
+def main(generations, fout, m=0):
+    global mode
+    mode = m
+    run(generations, fout)
+    
+def cli():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-mode', dest='m', type=int)
+    parser.add_argument('-fout', dest='fout', type=int)
+    parser.add_argument('-generations', dest='generations', type=int)
+    args = parser.parse_args()    
 
+    if args.generations == None:
+        args.generations = 1
+    if args.m == None:
+        args.m = 3
+    elif args.m < 0 or args.m > 3:
+        print('Error, mode must be between 0 and 3')
+        return
+        
+    if args.fout == None:
+        args.fout = str(args.m)
 
-if __name__ == '__main__':
-    mode = 0
-    run()
+    main(**vars(args))
+
+if __name__ == "__main__":
+    cli()
+    

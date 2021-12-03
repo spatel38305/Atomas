@@ -67,7 +67,7 @@ def convertContext_1(mctx):
 
 def convertContext_2(mctx):
     '''
-        118*18 + 2 = 2126 inputs
+        118*18 + 4 = 2128 inputs
         There are 118 inputs, each representing a unique atom. Like-valued inputs can be merged together.
         This value can be reduced to say, 30 inputs, where we modulo the atom value by 30. This, in effect,
         would treat the 0th atom and 30th atom as the same atom, but we should not have 2 atoms 30 values apart in
@@ -84,14 +84,25 @@ def convertContext_2(mctx):
     x = x.flatten()
         
     if ( mctx._Convertable == True ):
-        x.append(1)
+        x = np.append(x, 1)
     else:
-        x.append(0)
+        x = np.append(x, 0)
 
     if ( mctx._CenterAtom._Value == '+' ):
-        x.append(-1)
-    elif( mctx._CenterAtom._Value == '-' ):
-        x.append(-2)
+        x = np.append(x, 1)
+    else:
+        x = np.append(x, 0)
+
+    if( mctx._CenterAtom._Value == '-' ):
+        x = np.append(x, 1)
+    else:
+        x = np.append(x, 0)
+
+    if( mctx._CenterAtom._Value != '+' and mctx._CenterAtom._Value != '-' ):
+        x = np.append(x, mctx._CenterAtom._Value)
+    else:
+        x = np.append(x, 0)
+
     
     y[0] = mctx._CurrentScore + mctx._TotalThrown
     return x, y
