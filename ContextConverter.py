@@ -6,6 +6,7 @@ import Game
 
 def convertContext_0( mctx ):
     '''
+    20 inputs
     each potential atom location (1-18) is an input with the value being the atom at the respective location
     2 extra inputs for if an atom is convertable and if the center atom is a plus or minus for a total of 20 inputs
     '''
@@ -34,6 +35,7 @@ def convertContext_0( mctx ):
 
 def convertContext_1(mctx):
     '''
+    20 inputs
     each potential atom location (1-18) is an input with the value being a unique integer representing that atom
     2 extra inputs for if an atom is convertable and if the center atom is a plus or minus for a total of 20 inputs
     '''
@@ -65,6 +67,7 @@ def convertContext_1(mctx):
 
 def convertContext_2(mctx):
     '''
+        118*18 + 2 = 2126 inputs
         There are 118 inputs, each representing a unique atom. Like-valued inputs can be merged together.
         This value can be reduced to say, 30 inputs, where we modulo the atom value by 30. This, in effect,
         would treat the 0th atom and 30th atom as the same atom, but we should not have 2 atoms 30 values apart in
@@ -77,7 +80,53 @@ def convertContext_2(mctx):
 
     for i, n in enumerate(mctx._AtomCircle):
         x[n,i] = 1
-    #TODO: finish making this
+
+    x = x.flatten()
+        
+    if ( mctx._Convertable == True ):
+        x.append(1)
+    else:
+        x.append(0)
+
+    if ( mctx._CenterAtom._Value == '+' ):
+        x.append(-1)
+    elif( mctx._CenterAtom._Value == '-' ):
+        x.append(-2)
+    
+    y[0] = mctx._CurrentScore + mctx._TotalThrown
+    return x, y
+
+def convertContext_3( mctx ):
+    '''
+    22 inputs
+    Same as Convert Context 1 but forwards ALL of the information from mctx to see if that improves performance any
+    mctx: MergedAtoms, HighestAtom
+    '''
+    x = np.full( ( 18 + 2 + 2 ), 0 )
+    y = np.ndarray( ( 1 ) )
+
+    if ( mctx._Convertable == True ):
+        x[0] = 1
+    else:
+        x[0] = 0
+
+    if ( mctx._CenterAtom._Value == '+' ):
+        x[1] = -1
+    elif( mctx._CenterAtom._Value == '-' ):
+        x[1] = -2
+    else:
+        x[1] = mctx._CenterAtom._Value
+
+    for i, a in enumerate( mctx._AtomCircle ):
+        v = -1 if a._Value == '+' else a._Value
+        x[i + 2] = v
+
+    x[20] = len(mctx._MergedAtoms)
+    x[21] = mctx._HighestAtom
+
+    y[0] = mctx._CurrentScore + mctx._TotalThrown
+
+    return x, y
 
 def convertContext(version, mctx):
     if version == 0:
@@ -86,7 +135,8 @@ def convertContext(version, mctx):
         return convertContext_1(mctx)
     elif version == 2:
         return convertContext_2(mctx)
-    #TODO: think of other conversion types
+    elif version == 3:
+        return convertContext_3(mctx)
 
 def convertOutput( bOut, mctx ):
     actions = []

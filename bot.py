@@ -2,9 +2,9 @@ import os
 import Game
 from ContextConverter import *
 import neat
-#import neat.visualize
+import visualize
 
-mode = 0
+mode = 1
 
 def run_games(genomes, config):
     global mode
@@ -62,31 +62,23 @@ def run():
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(5))
+    # p.add_reporter(neat.Checkpointer(100))
 
-    # Run for up to 300 generations.
-    winner = p.run(run_games, 300)
+    # Run for up to 2000 generations.
+    winner = p.run(run_games, 1)
 
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))
 
-    return
-    '''
     # Show output of the most fit genome against training data.
     print('\nOutput:')
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    for xi, xo in zip(xor_inputs, xor_outputs):
-        output = winner_net.activate(xi)
-        print("input {!r}, expected output {!r}, got {!r}".format(xi, xo, output))
+    visualize.draw_net(config, winner, True)
+    visualize.plot_stats(stats, ylog=False, view=True)
+    visualize.plot_species(stats, view=True)
 
-    node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
-    #visualize.draw_net(config, winner, True, node_names=node_names)
-    #visualize.plot_stats(stats, ylog=False, view=True)
-    #visualize.plot_species(stats, view=True)
+    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
+    #p.run(run_games, 10)
 
-    p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    p.run(eval_genomes, 10)
-    '''
 
 if __name__ == '__main__':
     mode = 0
