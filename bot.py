@@ -50,7 +50,7 @@ def run_games(genomes, config):
             # update remaining games
             if not mctx._Running:
                 alive_games -= 1
-            
+
 def run(generations, foutDirName):
     global mode
     local_dir = os.path.dirname(__file__)
@@ -89,13 +89,13 @@ def main(generations, fout, m=0):
     global mode
     mode = m
     run(generations, fout)
-    
+
 def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('-mode', dest='m', type=int)
-    parser.add_argument('-fout', dest='fout', type=int)
+    parser.add_argument('-fout', dest='fout', type=str)
     parser.add_argument('-generations', dest='generations', type=int)
-    args = parser.parse_args()    
+    args = parser.parse_args()
 
     if args.generations == None:
         args.generations = 1
@@ -104,7 +104,7 @@ def cli():
     elif args.m < 0 or args.m > 3:
         print('Error, mode must be between 0 and 3')
         return
-        
+
     if args.fout == None:
         args.fout = str(args.m)
 
@@ -112,4 +112,4 @@ def cli():
 
 if __name__ == "__main__":
     cli()
-    
+
