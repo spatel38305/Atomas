@@ -54,12 +54,13 @@ def convertContext_1(mctx):
     else:
         x[1] = mctx._CenterAtom._Value
 
+    atomCircle = map(lambda x: -1 if x._Value == '+' else x._Value, mctx._AtomCircle)
+
     temp = defaultdict(lambda: len(temp))
-    res = [temp[ele] for ele in mctx._AtomCircle]
+    res = [temp[ele] for ele in atomCircle]
 
     for i, a in enumerate( res ):
-        v = -1 if a._Value == '+' else a._Value
-        x[i + 2] = v
+        x[i + 2] = a
 
     y[0] = mctx._CurrentScore + mctx._TotalThrown
 
