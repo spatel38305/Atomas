@@ -67,22 +67,22 @@ def convertContext_1(mctx):
 
 def convertContext_2(mctx):
     '''
-        118*18 + 4 = 2128 inputs
-        There are 118 inputs, each representing a unique atom. Like-valued inputs can be merged together.
+        119*18 + 4 = 2128 inputs
+        There are 119 inputs, each representing a unique atom. Like-valued inputs can be merged together.
         This value can be reduced to say, 30 inputs, where we modulo the atom value by 30. This, in effect,
         would treat the 0th atom and 30th atom as the same atom, but we should not have 2 atoms 30 values apart in
         a single circle. This must be repeated for each potential slot, effectively binarizing, vectorizing, or one-hot-encoding
         the input into the large category space of potential atoms.
     '''
-    size = 118
+    size = 119
     x = np.full( ( size, 18 ), 0 )
     y = np.ndarray( ( 1 ) )
 
     for i, n in enumerate(mctx._AtomCircle):
-        x[n,i] = 1
+        x[n._Value if n._Value != "+" else 0,i] = 1
 
     x = x.flatten()
-        
+
     if ( mctx._Convertable == True ):
         x = np.append(x, 1)
     else:
@@ -103,7 +103,7 @@ def convertContext_2(mctx):
     else:
         x = np.append(x, 0)
 
-    
+
     y[0] = mctx._CurrentScore + mctx._TotalThrown
     return x, y
 
