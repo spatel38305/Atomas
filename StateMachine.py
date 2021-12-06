@@ -180,6 +180,7 @@ class StateMachine:
     def convertAtom( self ):
         #Convert the center atom into a plus atom.
         self._CenterAtom = Atom( "+" )
+        self._Convertable = False
 
     def GenerateAtom( self ):
         #Probability distribution:
