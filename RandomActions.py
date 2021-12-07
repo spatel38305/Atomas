@@ -25,7 +25,7 @@ def getRandomAction( mctx ):
 
 if __name__ == "__main__":
     games = []
-    numGames = 100000
+    numGames = 1000000
 
     scores = np.ndarray( ( numGames ) )
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             print( "Finished %d games." % ( i + 1 ) )
 
     average = np.average( scores )
-    print( "Average : %.2f" % ( average ) )
+    print( "Average : %.6f" % ( average ) )
 
     max = np.amax( scores )
     print( "Max score: %d" % ( max ) )
