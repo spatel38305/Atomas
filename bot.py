@@ -121,7 +121,7 @@ def cli():
     if args.generations == None:
         args.generations = 1
     if args.m == None:
-        args.m = 3
+        args.m = 0
     elif args.m < 0 or args.m > 3:
         print('Error, mode must be between 0 and 3')
         return
