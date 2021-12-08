@@ -141,6 +141,9 @@ def convertContext_3( mctx ):
     return x, y
 
 def convertContext(version, mctx):
+    '''
+    driver code for calling correct corresponding context converter based on current mode (version)
+    '''
     if version == 0:
         return convertContext_0(mctx)
     elif version == 1:
@@ -151,6 +154,9 @@ def convertContext(version, mctx):
         return convertContext_3(mctx)
 
 def convertOutput( bOut, mctx ):
+    '''
+    The output converter to translate the AI output back into instructions the state machine can understand
+    '''
     actions = []
     indices = np.argmax( bOut )
     choice = -1
@@ -174,6 +180,3 @@ def convertOutput( bOut, mctx ):
                 actions.append( { "addAtom" : [ mctx._CenterAtom._Value, choice ] } )
 
     return actions
-
-if __name__ == "__main__":
-    Game.main()

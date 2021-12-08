@@ -9,6 +9,12 @@ import pickle
 mode = 0
 
 def run_games(genomes, config):
+    '''
+    The genome running callback function. This function is responsible for creating a neural network, 
+    running 150 iterations, converting input from the statemachine to the bot, running the bot on the input,
+    converting the output of the bot into input into the statemachine, updating the fitness function, and running the
+    game for up to 200 iterations.
+    '''
     global mode
     nets = []
     games = []
@@ -52,6 +58,11 @@ def run_games(genomes, config):
                 alive_games -= 1
 
 def run(generations, foutDirName):
+    '''
+    This function loads the configuration file and jumps off the run_game callback function,
+    gathers stats for the best performing models, and creates svgs containing the histories of 
+    older models over several factors (# of species, fitness, net layout).
+    '''
     global mode
     local_dir = os.path.dirname(__file__)
     config_file = os.path.join(local_dir, 'config-feedforward_{}'.format(mode))
@@ -86,11 +97,21 @@ def run(generations, foutDirName):
     visualize.plot_species(stats, filename=os.path.join(foutDir, 'speciation.svg'))
 
 def main(generations, fout, m=0):
+    '''
+    main function for cli to call into to start running the code
+    '''
     global mode
     mode = m
     run(generations, fout)
 
 def cli():
+    '''
+    cli arguments for running the bot.
+    -mode: which context converter to run. mode n corresponds to contextConverter-n,
+        which in turn also runs with config-feeedforward_n config file.
+    -fout: which directory should be created to hold the output files
+    -generations: how many generatinos to run the NEAT for.
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument('-mode', dest='m', type=int)
     parser.add_argument('-fout', dest='fout', type=str)

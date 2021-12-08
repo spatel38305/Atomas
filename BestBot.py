@@ -6,6 +6,12 @@ import Game
 mode = 0
 
 def run_game(genomes, config):
+    '''
+    The genome running callback function. This function is responsible for creating a neural network, 
+    running 150 iterations, converting input from the statemachine to the bot, running the bot on the input,
+    converting the output of the bot into input into the statemachine, updating the fitness function, and running the
+    game for up to 200 iterations.
+    '''
     global mode
     nets = []
     games = []
@@ -46,6 +52,10 @@ def run_game(genomes, config):
                 alive_games -= 1
 
 def replay_genome(config_path, genome_path="winner.pkl"):
+    '''
+    loads the best performing NET model specified and runs the bot using that model.
+    '''
+
     # Load requried NEAT config
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
 

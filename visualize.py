@@ -7,6 +7,8 @@ import numpy as np
 
 '''
 Graphvis requires https://graphviz.org/download/
+This code creates the output metric visualizations of the bot - 
+namely the network layout, the average fitness over time, and the number of species over time.
 '''
 
 

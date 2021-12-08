@@ -1,3 +1,8 @@
+
+'''
+general utility functions used throughout several scripts
+'''
+
 def toColor(i):
     colors = [
         (100,100,100),

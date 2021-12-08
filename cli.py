@@ -1,6 +1,14 @@
 from threading import Thread
 
 def docli(cli):
+    '''
+    main debug cli function.
+    add x n: adds atom of rank x to position n on the board
+    delete n: deletes atom n from the board
+    convert n: converts atom n to a plus
+    convertTo x n: converts atom n into an atom of rank x
+    merge: manually causes the merge function to run
+    '''
     if cli == '':
         return []
 
@@ -41,6 +49,9 @@ def docli(cli):
     return updates
 
 def startcli(game):
+    '''
+    boilerplate for creating a thread for the cli to run in, waiting for user input in the background
+    '''
     game.cli = ''
     def get_user_cli_input():
         print('waiting debug input...')

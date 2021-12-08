@@ -7,6 +7,9 @@ import Game
 import utils
 
 class Atom:
+    '''
+    Atom class, represents an atom. Only contains a value
+    '''
     def __init__( self, value ):
         self._Value = value
 
@@ -41,6 +44,9 @@ class StateMachine:
         return "StateMachine( " + str( self._MaxAtoms ) + " )"
 
     def addAtom( self, atom, index ):
+        '''
+        adds an Atom of rank atom to the circle at position index
+        '''
         if ( atom is None ):
             raise Exception( "atom is None" )
         if ( index > len(self._AtomCircle)):
@@ -58,6 +64,9 @@ class StateMachine:
         self._TotalThrown += 1
 
     def checkMerge( self ):
+        '''
+        checks to see if a merge is possible, and if so, merges the atoms
+        '''
         index = 0
         largestMerge = 0
         mergeIndex = -1
@@ -91,6 +100,9 @@ class StateMachine:
             self.checkMerge()
 
     def mergeCount( self, index ):
+        '''
+        counts the number of atoms to be merged
+        '''
         mCount = 0
         nCheck = index + 1
         pCheck = index - 1
@@ -113,6 +125,9 @@ class StateMachine:
         return mCount
 
     def mergeAtoms( self, index, largestMerge ):
+        '''
+        performs the merging of atoms based on mergecount and index
+        '''
         self._MergedAtoms.append( { "center" : None, "surrounding" : [] } )
         mindex = len( self._MergedAtoms ) - 1
         self._MergedAtoms[mindex]["center"] = self._AtomCircle[index]
@@ -171,26 +186,32 @@ class StateMachine:
             self._HighestAtom = mergeValue
 
     def minusAtom( self, index ):
-        #Set the selected atom as the new center atom and remove it from the circle.
+        '''
+        Set the selected atom as the new center atom and remove it from the circle.
+        '''
         self._CenterAtom = self._AtomCircle[index]
         self._Convertable = True
         del self._AtomCircle[index]
         self.checkMerge()
 
     def convertAtom( self ):
-        #Convert the center atom into a plus atom.
+        '''
+        Convert the center atom into a plus atom.
+        '''
         self._CenterAtom = Atom( "+" )
         self._Convertable = False
 
     def GenerateAtom( self ):
-        #Probability distribution:
-        #minus : 5%
-        #plus  : 15%
-        #1     : 15%
-        #2     : 20%
-        #3     : 20%
-        #4     : 20%
-        #5     : 5%
+        '''
+        Generates a new atom with the following Probability distributions:
+        minus : 5%
+        plus  : 15%
+        1     : 15%
+        2     : 20%
+        3     : 20%
+        4     : 20%
+        5     : 5%
+        '''
         if len(self._AtomCircle) == 0:
             return Atom(0)
 
@@ -217,11 +238,17 @@ class StateMachine:
         return atom
 
     def GameOver( self ):
+        '''
+        ends the game
+        '''
         # print( "Game Over!" )
         # print( "Score: " + str( self._CurrentScore ) )
         self._Running = False
 
     class Context:
+        '''
+        the state machine context that is passed to the renderer/bot to render/interact with the game
+        '''
         def __init__( self, Running, AtomCircle, CurrentScore, MaxAtoms, CenterAtom, MergedAtoms, HighestAtom, Convertable, TotalThrown ):
             self._Running = Running
             self._AtomCircle = copy.deepcopy( AtomCircle )
@@ -248,26 +275,33 @@ class StateMachine:
             return "Game.Context( AtomCircle, CurrentScore, MaxAtoms )"
 
     def MachineContext( self ):
+        '''
+        getter function to get the state machine context
+        '''
         ctx = StateMachine.Context( self._Running, self._AtomCircle, self._CurrentScore, self._MaxAtoms, self._CenterAtom, self._MergedAtoms, self._HighestAtom, self._Convertable, self._TotalThrown )
         return ctx
 
-    #debug
     def convertTo(self, idx, atom):
+        '''
+        debug function to enable arbitrary atom conversion
+        '''
         if idx >= 0:
             self._AtomCircle[idx] = Atom(atom)
         elif idx == -1:
             self._CenterAtom = Atom(atom)
 
     def delete(self, idx):
+        '''
+        debug function to delete an arbitrary atom
+        '''
         del self._AtomCircle[idx]
 
     def input( self, commands ):
+        '''
+        the main method of inputting data into the statemachine to trigger its state changes
+        '''
         self._MergedAtoms = []
         for cmdlist in commands:
             for cmd in cmdlist:
                 utils.applyattr(self, cmd, cmdlist[cmd])
         return self.MachineContext()
-
-
-if __name__ == "__main__":
-    Game.main()

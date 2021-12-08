@@ -6,6 +6,10 @@ import timeit
 import argparse
 import copy
 
+'''
+a unit test script designed to test the merge functionality.
+'''
+
 def addAtomWithoutMerge( s, atom, index ):
     atom = Atom(atom)
 

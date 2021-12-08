@@ -5,6 +5,7 @@ import math
 import Game
 import utils
 
+#global data representing the atom visuals
 ptableSymbols = ['H', 'He', 'Li', 'Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Uub','___','Uuq']
 ptable = {i: {'symbol': s, 'color': utils.toColor(i)} for (i,s) in enumerate(ptableSymbols)}
 ptable['+'] = {'symbol': '+', 'color': (200,0,0)}
@@ -34,10 +35,16 @@ class Renderer():
         self.createWorld()
 
     def draw(self, entity):
+        '''
+        runs pygame's corresponding functions to draw entity args
+        '''
         for cmd in entity:
             cmd['fn'](*cmd['args'])
 
     def createAtomEntity(self, atom, x, y):
+        '''
+        creates an Atom of rank atom with an x and y position
+        '''
         if atom._Value == '+' or atom._Value == '-':
             txt = self.font.render(atom._Value, True, (255,255,255))
             return [
@@ -54,17 +61,26 @@ class Renderer():
                 ]
 
     def createAtomCircleEntity(self, atom, rad):
+        '''
+        creates an Atom of rank atom on the circle at a position based on rad (in radians)
+        '''
         x = self.radius*math.cos(rad) + self.center[0]
         y = self.radius*math.sin(rad) + self.center[1]
         return self.createAtomEntity(atom, x, y)
 
     def createAtomCircleEntities(self, atoms):
+        '''
+        create all atoms in the circle based off of the mctx
+        '''
         entities = []
         for i, a in enumerate(atoms):
             entities += self.createAtomCircleEntity(a, (2*math.pi)*(i/len(atoms)) + self.offset)
         return entities
 
     def drawFrames(self):
+        '''
+        draws (and animates) all frames. 
+        '''
         #self.offset += 0.005
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -82,11 +98,17 @@ class Renderer():
         return []
 
     def createWorld(self):
+        '''
+        draws the environment, a big hollow circle in the center of the screen
+        '''
         x, y = self.screen.get_size()
         self.entities.append({'fn': pygame.draw.circle, 'args': [self.screen, (200,200,200), [x/2, y/2], self.radius+self.atomRadius+5+1]})
         self.entities.append({'fn': pygame.draw.circle, 'args': [self.screen, self.backgroundColor, [x/2, y/2], self.radius+self.atomRadius+5-1]})
 
     def animateNewAtom(self, idx):
+        '''
+        animates a new atom being thrown, moving the atom circle around
+        '''
         frames = int(self.fps/3)
         n = len(self.mctx._AtomCircle)
 
@@ -118,9 +140,12 @@ class Renderer():
             continue
 
     def animateMerge(self):
-        print(self.mctx._MergedAtoms)
+        return
 
     def handleClick(self, event):
+        '''
+        handles user input events
+        '''
         if self.mctx._Convertable:
             x1 = self.center[0]
             y1 = self.center[1]
@@ -141,6 +166,9 @@ class Renderer():
         self.stateMachineUpdates.append({'addAtom': [self.mctx._CenterAtom._Value, idx]})
 
     def handleCapture(self, event):
+        '''
+        handles when user clicks on absorbing an atom when minus atom is the center atom
+        '''
         clickedAtomIdx = -1
         ln = len(self.mctx._AtomCircle)
         for i in range(ln):
@@ -158,6 +186,10 @@ class Renderer():
         return clickedAtomIdx
 
     def getInput(self):
+        '''
+        gets the raw inputs from pygame.event.get() and passes it on to handleCapture or handleInput depending on the state of the game
+        also handles quitting or invalid buttons
+        '''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.stateMachineUpdates.append({'GameOver': []})
@@ -171,12 +203,15 @@ class Renderer():
         return self.getStateMachineInput()
 
     def updateStateMachine(self, mctx):
+        '''
+        update the internal representation of the state machine
+        '''
         self.stateMachineUpdates = []
         self.last_mctx = self.mctx
         self.mctx = mctx
 
     def getStateMachineInput(self):
+        '''
+        return the updated statemachine that we modify when user interacts with their inputs
+        '''
         return self.stateMachineUpdates
-
-if __name__ == "__main__":
-    Game.main()
